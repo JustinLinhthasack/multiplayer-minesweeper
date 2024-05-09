@@ -1,5 +1,17 @@
 # Multiplayer Minesweeper
 
+This project is minesweeper but instead of playing alone, you and three other people can work on a single board! This allows for larger minesweeper boards for more fun.
+
+How To Play:
+1. Create a session
+2. Press anywhere on the grid to start your game, the first click is guaranteed to be a zero.
+3. The numbers represents how many mines are touching that square, your goal is to click on guaranteed non-mines using logic and patterns.
+
+Controls:
+Left click to reveal the plate
+Right click to flag the plate for potential bombs
+Middle click to reveal all surrounding plates besides flagged plates.
+
 Tech Stack:
 frontend -> html, css, javascript
 backend -> NodeJS

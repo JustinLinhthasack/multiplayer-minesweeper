@@ -7,7 +7,7 @@ How To Play:
 2. Press anywhere on the grid to start your game, the first click is guaranteed to be a zero.
 3. The numbers represents how many mines are touching that square, your goal is to click on guaranteed non-mines using logic and patterns.
 
-Controls:
+Controls:<br>
 Left click to reveal the plate<br>
 Right click to flag the plate for potential bombs<br>
 Middle click to reveal all surrounding plates besides flagged plates.

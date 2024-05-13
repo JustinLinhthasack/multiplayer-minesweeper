@@ -18,6 +18,7 @@ function pathHandler(req, res) {
       res.statusCode = 404;
       res.end();
     }
+    return;
   }
 
   switch(url) {
@@ -28,10 +29,10 @@ function pathHandler(req, res) {
       res.end(htmlData);
       break;
     default:
-      res.writeHead(302, {
-        Location: '/'
-      });
-      res.end();
+      let errorhtmlData = fs.readFileSync(path.join(__dirname, '..', '/views/errorPage/error.html'))
+      res.statusCode = 404;
+      res.setHeader('Content-Type', 'text/html');
+      res.end(errorhtmlData);
   }
 }
 

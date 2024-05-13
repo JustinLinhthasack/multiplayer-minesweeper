@@ -8,17 +8,13 @@ How To Play:
 3. The numbers represents how many mines are touching that square, your goal is to click on guaranteed non-mines using logic and patterns.
 
 Controls:
-Left click to reveal the plate
-
-Right click to flag the plate for potential bombs
-
+Left click to reveal the plate<br>
+Right click to flag the plate for potential bombs<br>
 Middle click to reveal all surrounding plates besides flagged plates.
 
 
-Tech Stack:
-
-frontend -> html, css, javascript
-
+Tech Stack:<br>
+frontend -> html, css, javascript<br>
 backend -> NodeJS
 
 The goal is to use as little libraries or plugins to get a further understanding how each piece works without relying on an established library.

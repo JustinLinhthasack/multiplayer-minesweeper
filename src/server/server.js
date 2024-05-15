@@ -11,8 +11,23 @@ function pathHandler(req, res) {
   if (url.substring(1,4) == 'cdn') {
     let cdnData = fs.readFileSync(path.join(__dirname, '..', req.url));
     if (cdnData) {
+      let contentType = null;
+
+      switch(path.extname(req.url)) {
+        case '.css':
+          contentType = 'text/css';
+          break;
+        case '.js':
+          contentType = 'text/javascript';
+          break;
+        default:
+          res.statusCode = 404;
+          res.end;
+          return;
+      }
+
       res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/css');
+      res.setHeader('Content-Type', contentType);
       res.end(cdnData);
     } else {
       res.statusCode = 404;
@@ -38,7 +53,7 @@ function pathHandler(req, res) {
 
 const server = http.createServer((req, res) => {
   pathHandler(req, res);
-  
+
 });
 
 server.listen(port, hostname, () => {

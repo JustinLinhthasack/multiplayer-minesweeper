@@ -10,13 +10,11 @@ class Minesweeper {
     #sizeX = 25; // Default game size
     #sizeY = 25;
     #bombPercent = .2;
-    #creator = null;
     #gameMatrix = [];
 
-    constructor(sizeHeight, sizeWidth, creator, sessionID) {
+    constructor(sizeHeight, sizeWidth) {
         this.#sizeX = sizeHeight;
         this.#sizeY = sizeWidth;
-        this.#creator = creator;
     }
 
     toString() { // for testing purposes, just prints out the game matrix in console.

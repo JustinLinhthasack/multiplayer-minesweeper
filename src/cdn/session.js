@@ -2,9 +2,10 @@ const url = new URL(window.location.href);
 const socket = new WebSocket(`ws://${url.hostname}:${url.port}${url.pathname}`);
 
 socket.addEventListener("open", (e) => {
-    socket.send("hello");
+    console.log("SENDING!")
+    socket.send(1);
 })
 
 socket.addEventListener("message", (event) => {
-    console.log("Message from server ", event.data);
+    console.log("Message from server:", event.data);
   });

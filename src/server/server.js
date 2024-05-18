@@ -113,15 +113,8 @@ server.on('upgrade', (req, socket) => {
  // console.log(req, socket);
 
   if (req.headers['upgrade'] !== 'websocket' || !sessions[req.url]) {
-    socket.statusCode(400);
-    socket.end();
+    socket.end(404);
     return;
-  }
-
-  if (firstsocket) {
-    console.log(socket === firstsocket, socket === socket);
-  } else {
-    firstsocket = socket;
   }
 
   const session = sessions[req.url];

@@ -1,4 +1,5 @@
 const Minesweeper = require("./minesweeper");
+const { socketSendString } = require("./util");
 
 class Session {
     #creator = null;
@@ -19,17 +20,22 @@ class Session {
     connectPlayer(socket) {
         socket.on('data', (data) =>{
             console.log(data);
+            socket.write(socketSendString("Hello this is a test!"))
         })
 
-        socket.on('error', this.disconnectPlayer, socket);
-        socket.on('close', this.disconnectPlayer, socket);
+        socket.on('error', ()=>{
+            this.disconnectPlayer(socket);
+        });
+        socket.on('close', ()=>{
+            this.disconnectPlayer(socket);
+        });
 
     }
 
     disconnectPlayer(socket) {
         console.log('player error!')
 
-        socket.close();
+        socket.end();
     }
 
     kickPlayer(initiator, victim) {

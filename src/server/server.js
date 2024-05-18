@@ -1,15 +1,26 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
+const Session = require('./sessions.js');
 
 const hostname = '127.0.0.1';
 const port = 3000;
 
-function pathHandler(req, res) {
+const sessions = {};
+
+function getHandler(req, res) {
   const url = req.url;
 
   if (url.substring(1,4) == 'cdn') {
-    let cdnData = fs.readFileSync(path.join(__dirname, '..', req.url));
+    let cdnData = null;
+    try {
+      cdnData = fs.readFileSync(path.join(__dirname, '..', req.url));
+    } 
+    catch {
+      cdnData = null;
+    }
+
     if (cdnData) {
       let contentType = null;
 
@@ -20,10 +31,6 @@ function pathHandler(req, res) {
         case '.js':
           contentType = 'text/javascript';
           break;
-        default:
-          res.statusCode = 404;
-          res.end;
-          return;
       }
 
       res.statusCode = 200;
@@ -44,16 +51,60 @@ function pathHandler(req, res) {
       res.end(htmlData);
       break;
     default:
-      let errorhtmlData = fs.readFileSync(path.join(__dirname, '..', '/views/errorPage/error.html'))
+
+      if (!sessions[url]) {
+        let errorhtmlData = fs.readFileSync(path.join(__dirname, '..', '/views/errorPage/error.html'))
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/html');
+        res.end(errorhtmlData);
+
+        return;
+      }
+
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('SUCCESS!')
+      
+  }
+}
+
+function postHandler(req,res) {
+  const url = new URL(`http:${hostname}:${port}${req.url}`);
+
+  switch(url.pathname) {
+    case '/createSession':
+      let hash = crypto.randomBytes(4).toString('hex');
+      let userID = crypto.randomBytes(16).toString('hex');
+      sessions['/'+hash] = new Session();
+
+      res.statusCode = 200;
+      res.setHeader('Location', '/'+hash); // Client will redirect themselves
+      res.setHeader('userId', userID);
+ 
+      res.end();
+      break;
+    default:
       res.statusCode = 404;
-      res.setHeader('Content-Type', 'text/html');
-      res.end(errorhtmlData);
+      res.end();
+  }
+}
+
+function router(req, res) {
+  switch(req.method) {
+    case 'GET':
+      getHandler(req, res);
+      break;
+    case 'POST':
+      postHandler(req,res);
+      break;
+    default:
+      res.statusCode = 404;
+      res.end();
   }
 }
 
 const server = http.createServer((req, res) => {
-  pathHandler(req, res);
-
+  router(req, res);
 });
 
 server.listen(port, hostname, () => {

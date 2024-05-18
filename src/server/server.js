@@ -60,26 +60,26 @@ function getHandler(req, res) {
 
         return;
       }
-
+      let sessionData = fs.readFileSync(path.join(__dirname, '..', '/views/sessions/sessionTemplate.html'))
       res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('SUCCESS!')
+      res.setHeader('Content-Type', 'text/html');
+      res.end(sessionData)
       
   }
 }
 
 function postHandler(req,res) {
-  const url = new URL(`http:${hostname}:${port}${req.url}`);
+  const url = req.url
 
-  switch(url.pathname) {
+  switch(url) {
     case '/createSession':
       let hash = crypto.randomBytes(4).toString('hex');
       let userID = crypto.randomBytes(16).toString('hex');
-      sessions['/'+hash] = new Session();
+      sessions['/'+hash] = new Session(userID);
 
       res.statusCode = 200;
       res.setHeader('Location', '/'+hash); // Client will redirect themselves
-      res.setHeader('userId', userID);
+      res.setHeader('userId', userID); // UserId is then given to the host which they must have to do host priviledges
  
       res.end();
       break;
@@ -106,6 +106,39 @@ function router(req, res) {
 const server = http.createServer((req, res) => {
   router(req, res);
 });
+
+let firstsocket = null;
+
+server.on('upgrade', (req, socket) => {
+ // console.log(req, socket);
+
+  if (req.headers['upgrade'] !== 'websocket' || !sessions[req.url]) {
+    socket.statusCode(400);
+    socket.end();
+    return;
+  }
+
+  if (firstsocket) {
+    console.log(socket === firstsocket, socket === socket);
+  } else {
+    firstsocket = socket;
+  }
+
+  const session = sessions[req.url];
+
+  const acceptKey = req.headers['sec-websocket-key']; 
+
+  const hash = crypto
+              .createHash('sha1')
+              .update(acceptKey + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11', 'binary')
+              .digest('base64');
+
+  socket.write(`HTTP/1.1 101 Switching Protocol\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-Websocket-Accept: ${hash}\r\n\r\n`);
+  
+  session.connectPlayer(socket);
+  
+})
+
 
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);

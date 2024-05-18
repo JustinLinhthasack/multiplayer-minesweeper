@@ -1,5 +1,5 @@
 const Minesweeper = require("./minesweeper");
-const { socketSendString } = require("./util");
+const { socketSendString, socketParseString } = require("./util");
 
 class Session {
     #creator = null;
@@ -19,7 +19,7 @@ class Session {
 
     connectPlayer(socket) {
         socket.on('data', (data) =>{
-            console.log(data);
+            console.log(socketParseString(data));
             socket.write(socketSendString("Hello this is a test!"))
         })
 

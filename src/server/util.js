@@ -12,8 +12,6 @@ function socketSendString(str) {
     buff.fill(payload.length, 1,2) // since mask will always be 0, we can ignore that first bit.. hopefully... might have to add a payload size check
     buff.fill(payload, 2); // everything else is the payload.
 
-    console.log(buff)
-
     return buff;
 }
 
@@ -34,7 +32,7 @@ function socketParseString(buffer) { // For now we'll assume all incoming messag
     const parsedPayload =  Buffer.alloc(payload.length);
 
     for (i = 0; i < payload.length; i++) {
-        parsedPayload[i] = maskingKey[i%4] ^ payload[i] ;
+        parsedPayload[i] = maskingKey[i%4] ^ payload[i] ; // For every byte the payload has, it unmasks in order of masking key. 1st byte goes with the 1st mask key byte, and so on loops every 5th byte. (4 % 4 == 0)
     }
     
     return parsedPayload.toString();

@@ -45,7 +45,7 @@ function getHandler(req, res) {
 
   switch(url) {
     case '/':
-      let htmlData = fs.readFileSync(path.join(__dirname, '..', '/views/index/index.html'))
+      let htmlData = fs.readFileSync(path.join(__dirname, '..', '/views/index.html'))
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/html');
       res.end(htmlData);
@@ -53,14 +53,14 @@ function getHandler(req, res) {
     default:
 
       if (!sessions[url]) {
-        let errorhtmlData = fs.readFileSync(path.join(__dirname, '..', '/views/errorPage/error.html'))
+        let errorhtmlData = fs.readFileSync(path.join(__dirname, '..', '/views/error.html'))
         res.statusCode = 404;
         res.setHeader('Content-Type', 'text/html');
         res.end(errorhtmlData);
 
         return;
       }
-      let sessionData = fs.readFileSync(path.join(__dirname, '..', '/views/sessions/sessionTemplate.html'))
+      let sessionData = fs.readFileSync(path.join(__dirname, '..', '/views/sessionTemplate.html'))
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/html');
       res.end(sessionData)
@@ -110,10 +110,9 @@ const server = http.createServer((req, res) => {
 let firstsocket = null;
 
 server.on('upgrade', (req, socket) => {
- // console.log(req, socket);
 
   if (req.headers['upgrade'] !== 'websocket' || !sessions[req.url]) {
-    socket.end(404);
+    socket.end();
     return;
   }
 

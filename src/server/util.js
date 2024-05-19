@@ -1,18 +1,16 @@
-
-
 // Script with all my utils, will refactor later.
 const { Buffer } = require('node:buffer')
 
-function socketSendString(str) {
+function socketSendString(string) {
     let initialBytes = 2; // FIN RSV 1,2,3 OPCODE MASK LENGTH
-    let payload = str;
+    let payload = string;
     
-    const buff = Buffer.alloc(initialBytes + payload.length);
-    buff.fill(129, 0,1) // 1 0 0 0 (0 0 0 1) opcode 
-    buff.fill(payload.length, 1,2) // since mask will always be 0, we can ignore that first bit.. hopefully... might have to add a payload size check
-    buff.fill(payload, 2); // everything else is the payload.
+    const buffer = Buffer.alloc(initialBytes + payload.length);
+    buffer.fill(129, 0,1) // 1 0 0 0 (0 0 0 1) opcode 
+    buffer.fill(payload.length, 1,2) // since mask will always be 0, we can ignore that first bit.. hopefully... might have to add a payload size check
+    buffer.fill(payload, 2); // everything else is the payload.
 
-    return buff;
+    return buffer;
 }
 
 function socketParseString(buffer) { // For now we'll assume all incoming messages have a FIN bit of 1 and is a string for simplicity

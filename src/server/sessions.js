@@ -1,5 +1,5 @@
 const Minesweeper = require("./minesweeper");
-const { socketSendString, socketParseString } = require("./util");
+const { socketParseJSON, socketSendJSON } = require("./util");
 
 class Session {
     #creator = null;
@@ -10,7 +10,7 @@ class Session {
     #players = [];
 
     constructor(creator) {
-        this.#creator = creator
+        this.#creator = creator;
     }
 
     initGame() {
@@ -18,22 +18,53 @@ class Session {
     }
 
     connectPlayer(socket) {
+        let index = this.#players.push(socket) - 1;
+        console.log(index)
         socket.on('data', (data) =>{
-            console.log(socketParseString(data));
-            socket.write(socketSendString("Hello this is a test!"))
+            let parsedJSON = socketParseJSON(data);
+            if (!parsedJSON) {
+                return;
+            }
+
+            parsedJSON.data.playerId = index;
+
+            for (i = 0; i < this.#players.length; i++) {
+                if (i == index || this.#players[i] === null) {
+                    continue;
+                }
+
+
+                this.#players[i].write(socketSendJSON(parsedJSON));
+            } 
+
+            this.#players.forEach((player) => {
+                if (player === socket) {
+                   // console.log("?")
+                    return;
+                }
+
+                
+            });
         })
 
         socket.on('error', ()=>{
-            this.disconnectPlayer(socket);
+            this.disconnectPlayer(socket, index);
         });
         socket.on('close', ()=>{
-            this.disconnectPlayer(socket);
+            this.disconnectPlayer(socket, index);
         });
 
     }
 
-    disconnectPlayer(socket) {
-        console.log('player error!')
+    disconnectPlayer(socket, index) {
+        if (socket.destroying) {
+            // socket.destroying doesn't exist outside of our use case for any onlookers, this is to make sure we only cleanup this player once.
+            // I could have also checked if they already been removed from the array, but I felt this was more relevant and made more sense.
+            return; 
+        }
+        socket.destroying = true;
+        this.#players[index] = null;
+        //console.log(this.#players)
 
         socket.end();
     }

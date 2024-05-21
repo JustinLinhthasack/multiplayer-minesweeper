@@ -20,3 +20,25 @@ backend -> NodeJS
 The goal is to use as little libraries or plugins to get a further understanding how each piece works without relying on an established library.
 
 This project is meant solely for learning hence the lack of libraries, in a real world scenario, I would cater towards using established and tested libraries to speed up development if needed.
+
+## Getting Started
+To get a local copy running your own system, follow these steps:
+
+
+Clone the repo
+```sh
+git clone https://github.com/your_username_/multiplayer-minesweeper.git
+```
+
+Move your current directory into the newly created folder.
+```sh
+cd multiplayer-minesweeper
+```
+
+Then run the server
+```sh
+node ./src/server/server.js
+```
+
+
+You're all setup, now go to localhost:3000 and play minesweeper on LAN!

@@ -23,6 +23,7 @@ class Session {
         socket.on('data', (data) =>{
             let parsedJSON = socketParseJSON(data);
             if (!parsedJSON) {
+                this.disconnectPlayer(socket);
                 return;
             }
 
@@ -36,16 +37,7 @@ class Session {
 
                 this.#players[i].write(socketSendJSON(parsedJSON));
             } 
-
-            this.#players.forEach((player) => {
-                if (player === socket) {
-                   // console.log("?")
-                    return;
-                }
-
-                
-            });
-        })
+        });
 
         socket.on('error', ()=>{
             this.disconnectPlayer(socket, index);

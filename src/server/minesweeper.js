@@ -45,7 +45,7 @@ class Minesweeper {
             }
         }
 
-        console.log("INITIAL BOARD")
+        console.log("INITIAL BOARD");
         this.toString();
     
 
@@ -66,7 +66,7 @@ class Minesweeper {
 
             this.#gameMatrix[randomX][randomY] = TILE_TYPES.BOMB;
         }
-        console.log("BOMB PLACEMENT")
+        console.log("BOMB PLACEMENT");
         this.toString();
 
         for (let x = 0; x < this.#sizeX; x++) { // Turns all unsets to 0s and counts up all tiles surrounding bombs

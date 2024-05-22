@@ -15,7 +15,7 @@ function socketSendJSON(jsonMessage) {
     
     const buffer = Buffer.alloc(headerSize + payload.length);
     buffer.fill(129, 0,1); // 1 0 0 0 (0 0 0 1) opcode 
-    buffer.fill(payload.length, 1,2); // since mask will always be 0, we can ignore that first bit.. hopefully... might have to add a payload size check
+    buffer.fill(payload.length, 1,2); // since mask will always be 0, we can ignore that first bit, the amount of data I will be sending shouldnt exceed size requirements.
     buffer.fill(payload, 2); // everything else is the payload.
 
     return buffer;
@@ -27,7 +27,7 @@ function socketParseJSON(buffer) { // For now we'll assume all incoming messages
 
     if (header != 129) {
         return; // Incase client sends something not expected
-    } 
+    }
 
     if (maskLength >> 7 == 0) { // Mask is 0, which is bad, client needs to always send a masked message
         return;

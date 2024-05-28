@@ -18,8 +18,15 @@ class Session {
     }
 
     connectPlayer(socket) {
+        if (this.#creator === null) {
+            this.#creator = socket; // First connection should always be the one who created it as it redirects them instantly.
+        }
+
         let index = this.#players.push(socket) - 1;
-        console.log(index)
+
+        socket.write(socketSendJSON({type: "init", data: this.#playerBoard})); // sends the current gameState
+
+
         socket.on('data', (data) =>{
             let parsedJSON = socketParseJSON(data);
             if (!parsedJSON) {
@@ -55,7 +62,7 @@ class Session {
             return; 
         }
         socket.destroying = true;
-        this.#players[index] = null;
+        this.#players.splice(index, null);
         //console.log(this.#players)
 
         socket.end();

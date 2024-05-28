@@ -1,5 +1,5 @@
 const http = require('node:http');
-const fs = require('node:fs');
+const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const Session = require('./sessions.js');
@@ -9,13 +9,13 @@ const port = 3000;
 
 const sessions = {};
 
-function getHandler(req, res) {
+async function getHandler(req, res) {
   const url = req.url;
 
   if (url.substring(1,4) == 'cdn') {
     let cdnData = null;
     try {
-      cdnData = fs.readFileSync(path.join(__dirname, '..', req.url));
+      cdnData = await fs.readFile(path.join(__dirname, '..', req.url));
     } 
     catch {
       cdnData = null;
@@ -45,7 +45,7 @@ function getHandler(req, res) {
 
   switch(url) {
     case '/':
-      let htmlData = fs.readFileSync(path.join(__dirname, '..', '/views/index.html'))
+      const htmlData = await fs.readFile(path.join(__dirname, '..', '/views/index.html'))
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/html');
       res.end(htmlData);
@@ -53,14 +53,14 @@ function getHandler(req, res) {
     default:
 
       if (!sessions[url]) {
-        let errorhtmlData = fs.readFileSync(path.join(__dirname, '..', '/views/error.html'))
+        const errorhtmlData = await fs.readFile(path.join(__dirname, '..', '/views/error.html'))
         res.statusCode = 404;
         res.setHeader('Content-Type', 'text/html');
         res.end(errorhtmlData);
 
         return;
       }
-      let sessionData = fs.readFileSync(path.join(__dirname, '..', '/views/sessionTemplate.html'))
+      const sessionData = await fs.readFile(path.join(__dirname, '..', '/views/sessionTemplate.html'))
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/html');
       res.end(sessionData)
@@ -68,18 +68,16 @@ function getHandler(req, res) {
   }
 }
 
-function postHandler(req,res) {
+async function postHandler(req,res) {
   const url = req.url
 
   switch(url) {
     case '/createSession':
       let hash = crypto.randomBytes(4).toString('hex');
-      let userID = crypto.randomBytes(16).toString('hex');
-      sessions['/'+hash] = new Session(userID);
+      sessions['/'+hash] = new Session();
 
       res.statusCode = 200;
       res.setHeader('Location', '/'+hash); // Client will redirect themselves
-      res.setHeader('userId', userID); // UserId is then given to the host which they must have to do host priviledges
  
       res.end();
       break;

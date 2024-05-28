@@ -11,6 +11,7 @@ class Minesweeper {
     #sizeY = 25;
     #bombPercent = .2;
     #gameMatrix = [];
+    #playerGame = []; // This is what the player's see
 
     constructor(sizeHeight, sizeWidth) {
         this.#sizeX = sizeHeight;
@@ -25,6 +26,10 @@ class Minesweeper {
             }
             console.log(xString);
         }
+    }
+
+    get playerBoard() {
+        return this.#playerGame;
     }
 
     generateMatrixFromTile(startX,startY) { 

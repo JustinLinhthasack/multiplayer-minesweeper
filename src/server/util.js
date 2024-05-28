@@ -2,20 +2,13 @@
 const { Buffer } = require('node:buffer');
 
 function socketSendJSON(jsonMessage) {
-    let payload;
-    try {
-        payload = JSON.stringify(jsonMessage);
-    } catch(err) {
-        console.log("Invalid JSON.", err);
-        return;
-    }
+    const payload = JSON.stringify(jsonMessage);
 
-    let headerSize = 2; // FIN RSV 1,2,3 OPCODE MASK LENGTH
-    
+    const headerSize = 2; // FIN RSV 1,2,3 OPCODE MASK LENGTH
     
     const buffer = Buffer.alloc(headerSize + payload.length);
-    buffer.fill(129, 0,1); // 1 0 0 0 (0 0 0 1) opcode 
-    buffer.fill(payload.length, 1,2); // since mask will always be 0, we can ignore that first bit, the amount of data I will be sending shouldnt exceed size requirements.
+    buffer.fill(129, 0, 1); // 1 0 0 0 (0 0 0 1) opcode 
+    buffer.fill(payload.length, 1, 2); // since mask will always be 0, we can ignore that first bit, the amount of data I will be sending shouldnt exceed size requirements.
     buffer.fill(payload, 2); // everything else is the payload.
 
     return buffer;

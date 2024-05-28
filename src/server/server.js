@@ -4,10 +4,10 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const Session = require('./sessions.js');
 
+const sessions = Session.sessions;
+
 const hostname = '127.0.0.1';
 const port = 3000;
-
-const sessions = {};
 
 async function getHandler(req, res) {
   const url = req.url;
@@ -73,11 +73,12 @@ async function postHandler(req,res) {
 
   switch(url) {
     case '/createSession':
-      let hash = crypto.randomBytes(4).toString('hex');
-      sessions['/'+hash] = new Session();
+      const hash = crypto.randomBytes(4).toString('hex');
+      const sessionID = `/`+hash;
+      sessions[sessionID] = new Session(sessionID);
 
       res.statusCode = 200;
-      res.setHeader('Location', '/'+hash); // Client will redirect themselves
+      res.setHeader('Location', sessionID); // Client will redirect themselves
  
       res.end();
       break;

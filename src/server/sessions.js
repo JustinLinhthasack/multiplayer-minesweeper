@@ -2,15 +2,17 @@ const Minesweeper = require("./minesweeper");
 const { socketParseJSON, socketSendJSON } = require("./util");
 
 class Session {
+    static sessions = {};
+
     #creator = null;
     #minesweeper = null;
-    #playerBoard = null; // This is the spots the players can actually see (tiles they already interacted with)
+    #sessionID = null;
 
     #blacklist = [];
     #players = [];
 
-    constructor(creator) {
-        this.#creator = creator;
+    constructor(sessionID) {
+        this.#sessionID = sessionID;
     }
 
     initGame() {
@@ -24,8 +26,11 @@ class Session {
 
         let index = this.#players.push(socket) - 1;
 
-        socket.write(socketSendJSON({type: "init", data: this.#playerBoard})); // sends the current gameState
-
+        /**socket.write(socketSendJSON({
+            type: "init", 
+            data: {size: [25,25] , board: this.#minesweeper.playerBoard}
+        })); // sends the current gameState.
+        **/
 
         socket.on('data', (data) =>{
             let parsedJSON = socketParseJSON(data);
@@ -62,10 +67,16 @@ class Session {
             return; 
         }
         socket.destroying = true;
-        this.#players.splice(index, null);
+        this.#players.splice(index, 1);
         //console.log(this.#players)
 
         socket.end();
+
+        console.log(this.#players.length, this.#players)
+
+        if (this.#players.length === 0) {
+            delete Session.sessions[this.#sessionID]
+        }
     }
 
     kickPlayer(initiator, victim) {

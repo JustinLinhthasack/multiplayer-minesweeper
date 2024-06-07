@@ -1,0 +1,45 @@
+body {
+    margin: 0;
+}
+
+#mouseArea {
+    pointer-events: none;
+    position: absolute;
+    min-width: 100vw;
+    min-height: 100vh;
+    z-index: 2;
+}
+
+main {
+    display: grid;
+
+    min-width: 100vw;
+    min-height: 10vh;
+
+    justify-content: center;
+}
+
+#grid {
+    display: grid;
+    border: 2px solid black;
+    gap: 1px;
+    padding: 5px;
+}
+
+#grid > div {
+    background-color: lightgray;
+}
+
+#connecting {
+    position: absolute;
+    min-width: 100vw;
+    min-height: 100vh;
+    z-index: 3;
+
+    display: grid;
+    width: 200px;
+    height: 150px;
+    align-items: center;
+    justify-content: center;
+}
+

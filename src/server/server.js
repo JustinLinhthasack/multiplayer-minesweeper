@@ -75,7 +75,9 @@ async function postHandler(req,res) {
     case '/createSession':
       const hash = crypto.randomBytes(4).toString('hex');
       const sessionID = `/`+hash;
-      sessions[sessionID] = new Session(sessionID);
+      const session = new Session(sessionID);
+      session.createGame();
+      sessions[sessionID] = session;
 
       res.statusCode = 200;
       res.setHeader('Location', sessionID); // Client will redirect themselves

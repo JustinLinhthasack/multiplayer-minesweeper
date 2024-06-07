@@ -15,7 +15,7 @@ class Session {
         this.#sessionID = sessionID;
     }
 
-    initGame() {
+    createGame() {
         this.#minesweeper = new Minesweeper(25,25);
     }
 
@@ -26,11 +26,11 @@ class Session {
 
         let index = this.#players.push(socket) - 1;
 
-        /**socket.write(socketSendJSON({
+        socket.write(socketSendJSON({
             type: "init", 
-            data: {size: [25,25] , board: this.#minesweeper.playerBoard}
+            data: {size: {x: 25, y: 25} , board: this.#minesweeper.playerBoard}
         })); // sends the current gameState.
-        **/
+       
 
         socket.on('data', (data) =>{
             let parsedJSON = socketParseJSON(data);

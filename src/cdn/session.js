@@ -22,12 +22,13 @@ function handleMouseData(data) {
 }
 
 function handleCellClick(cell) {
-    if (cell.target === main) {
+    const cellPosString = cell.target.getAttribute('data-position');
+    if (cellPosString === null) {
         return;
     }
 
-    const cellPos = cell.target.getAttribute('data-position').split(',');
-    console.log(cellPos);
+    const cellPos = cellPosString.split(',');
+
     socket.send(JSON.stringify({
         type: 'board', 
         data: {

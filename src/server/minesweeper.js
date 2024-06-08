@@ -10,7 +10,7 @@ class Minesweeper {
     #sizeX = 25; // Default game size
     #sizeY = 25;
     #bombPercent = .2;
-    #gameMatrix = [];
+    #actualBoard = [];
     #playerGame = []; // This is what the player's see
 
     constructor(sizeHeight, sizeWidth) {
@@ -22,7 +22,7 @@ class Minesweeper {
         for (let x = 0; x < this.#sizeX; x++) { 
             let xString = "";
             for (let y = 0; y < this.#sizeY; y++) {
-                xString += this.#gameMatrix[x][y] + " "
+                xString += this.#actualBoard[x][y] + " "
             }
             console.log(xString);
         }
@@ -35,9 +35,9 @@ class Minesweeper {
     generateMatrixFromTile(startX,startY) { 
 
         for (let x = 0; x < this.#sizeX; x++) { // Initializes the matrix to unsets
-            this.#gameMatrix[x] = [];
+            this.#actualBoard[x] = [];
             for (let y = 0; y < this.#sizeY; y++) {
-                this.#gameMatrix[x][y] = TILE_TYPES.UNSET;
+                this.#actualBoard[x][y] = TILE_TYPES.UNSET;
             }
         }
 
@@ -46,7 +46,7 @@ class Minesweeper {
                 if (startX + i >= this.#sizeX ||  startX + i < 0 || startY + j >= this.#sizeY || startY + j < 0) {
                     continue;
                 }
-                this.#gameMatrix[startX + i][startY + j] = 0;
+                this.#actualBoard[startX + i][startY + j] = 0;
             }
         }
 
@@ -60,25 +60,25 @@ class Minesweeper {
             let randomX = Math.floor(Math.random() * this.#sizeX);
             let randomY = Math.floor(Math.random() * this.#sizeY);
 
-            let tileNumber = this.#gameMatrix[randomX][randomY];
+            let tileNumber = this.#actualBoard[randomX][randomY];
 
             while (tileNumber == TILE_TYPES.BOMB || tileNumber != TILE_TYPES.UNSET) { // Loops till it finds a spot to guarantee number of bombs. Not sure if there is a better algorithm. Will check when finished.
                 randomX = Math.floor(Math.random() * this.#sizeX);
                 randomY = Math.floor(Math.random() * this.#sizeY);
 
-                tileNumber = this.#gameMatrix[randomX][randomY];
+                tileNumber = this.#actualBoard[randomX][randomY];
             }
 
-            this.#gameMatrix[randomX][randomY] = TILE_TYPES.BOMB;
+            this.#actualBoard[randomX][randomY] = TILE_TYPES.BOMB;
         }
         console.log("BOMB PLACEMENT");
         this.toString();
 
         for (let x = 0; x < this.#sizeX; x++) { // Turns all unsets to 0s and counts up all tiles surrounding bombs
             for (let y = 0; y < this.#sizeY; y++) {
-                if (this.#gameMatrix[x][y] == TILE_TYPES.UNSET) {
-                    this.#gameMatrix[x][y] = 0;
-                } else if (this.#gameMatrix[x][y] == TILE_TYPES.BOMB) {
+                if (this.#actualBoard[x][y] == TILE_TYPES.UNSET) {
+                    this.#actualBoard[x][y] = 0;
+                } else if (this.#actualBoard[x][y] == TILE_TYPES.BOMB) {
                     let startX = x;
                     let startY = y;
 
@@ -88,15 +88,15 @@ class Minesweeper {
                             if (startX + i >= this.#sizeX ||  startX + i < 0 || startY + j >= this.#sizeY || startY + j < 0) {
                                 continue;
                             }
-                            let tileType = this.#gameMatrix[startX + i][startY + j];
+                            let tileType = this.#actualBoard[startX + i][startY + j];
                             if (tileType == TILE_TYPES.BOMB) {
                                 continue;
                             }
 
                             if (tileType == TILE_TYPES.UNSET) {
-                                this.#gameMatrix[startX + i][startY + j] = 0;
+                                this.#actualBoard[startX + i][startY + j] = 0;
                             }
-                            this.#gameMatrix[startX + i][startY + j] += 1;
+                            this.#actualBoard[startX + i][startY + j] += 1;
                         }
                     }
                 }

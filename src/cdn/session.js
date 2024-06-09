@@ -103,7 +103,8 @@ socket.addEventListener("open", (e) => {
 })
 
 socket.addEventListener('close', ()=> {
-    removeEventListener('mousemove', sendMousePos)
+    removeEventListener('mousemove', sendMousePos);
+    main.removeEventListener('click', handleCellClick);
 })
 
 socket.addEventListener("message", (event) => {

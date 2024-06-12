@@ -17,6 +17,22 @@ class Session {
 
     createGame() {
         this.#minesweeper = new Minesweeper(25,25);
+        this.#minesweeper.generateMatrixFromTile(0,0)
+    }
+
+    handleMouseData(socket, parsedJSON) {
+        
+
+        parsedJSON.data.playerId = socket.playerIndex;
+
+        for (i = 0; i < this.#players.length; i++) {
+            if (i == socket.playerIndex || this.#players[i] === null) {
+                continue;
+            }
+
+
+            this.#players[i].write(socketSendJSON(parsedJSON));
+        } 
     }
 
     connectPlayer(socket) {
@@ -25,6 +41,7 @@ class Session {
         }
 
         let index = this.#players.push(socket) - 1;
+        socket.playerIndex = index;
 
         socket.write(socketSendJSON({
             type: "init", 
@@ -39,16 +56,25 @@ class Session {
                 return;
             }
 
-            parsedJSON.data.playerId = index;
-
-            for (i = 0; i < this.#players.length; i++) {
-                if (i == index || this.#players[i] === null) {
-                    continue;
-                }
-
-
-                this.#players[i].write(socketSendJSON(parsedJSON));
-            } 
+            switch (parsedJSON.type) {
+                case 'mouse':
+                    this.handleMouseData(socket, parsedJSON);
+                    break;
+                case 'board':
+                    let result = this.#minesweeper.checkTile(parsedJSON.data.x, parsedJSON.data.y);
+        
+                    if (result) {
+                        for (i = 0; i < this.#players.length; i++) {
+                            this.#players[i].write(socketSendJSON({
+                                type: 'board',
+                                data: { position: result.position, tileInfo: result.tileInfo }
+                            }));
+                        } 
+                    }
+                    break;
+                
+            }
+            
         });
 
         socket.on('error', ()=>{
@@ -71,8 +97,6 @@ class Session {
         //console.log(this.#players)
 
         socket.end();
-
-        console.log(this.#players.length, this.#players)
 
         if (this.#players.length === 0) {
             delete Session.sessions[this.#sessionID]

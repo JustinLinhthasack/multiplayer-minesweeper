@@ -4,7 +4,7 @@ const socket = new WebSocket(`ws://${url.hostname}:${url.port}${url.pathname}`);
 const main = document.querySelector('main');
 
 function handleMouseData(data) {
-    const target = document.getElementById("player-" + data.playerId);
+    let target = document.getElementById("player-" + data.playerId);
     if (!target) {
         const div = document.createElement("div");
         div.style.position = "absolute";
@@ -67,6 +67,10 @@ function handleServerData(type, data) {
 
             break;
         case 'board':
+            const tile = document.querySelector(`[data-position="${data.position[0] + ',' + data.position[1]}"]`)
+            if (tile) {
+                tile.textContent = data.tileInfo;
+            }
             break;
         case 'mouse':
            handleMouseData(data);

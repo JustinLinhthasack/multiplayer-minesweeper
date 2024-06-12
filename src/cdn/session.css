@@ -11,12 +11,10 @@ body {
 }
 
 main {
-    display: grid;
-
     min-width: 100vw;
-    min-height: 10vh;
-
-    justify-content: center;
+    min-height: 100vh;
+    display: grid;
+    place-content: center;
 }
 
 #grid {

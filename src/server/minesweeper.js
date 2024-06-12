@@ -50,8 +50,8 @@ class Minesweeper {
             }
         }
 
-        console.log("INITIAL BOARD");
-        this.toString();
+        //console.log("INITIAL BOARD");
+        //this.toString();
     
 
         let amountOfBombs = (this.#sizeX * this.#sizeY) * this.#bombPercent;
@@ -71,8 +71,8 @@ class Minesweeper {
 
             this.#actualBoard[randomX][randomY] = TILE_TYPES.BOMB;
         }
-        console.log("BOMB PLACEMENT");
-        this.toString();
+        //console.log("BOMB PLACEMENT");
+        //this.toString();
 
         for (let x = 0; x < this.#sizeX; x++) { // Turns all unsets to 0s and counts up all tiles surrounding bombs
             for (let y = 0; y < this.#sizeY; y++) {
@@ -103,13 +103,25 @@ class Minesweeper {
             }
         }
 
-        console.log("FULL BOARD")
-        this.toString();
+        //console.log("FULL BOARD")
+        //this.toString();
 
     }
 
     checkTile(x,y) {
+        if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0)) {
+            return false;
+        }
 
+        const tile = this.#actualBoard[x][y];
+
+        if (!this.#playerGame[x]) {
+            this.#playerGame[x] = [];
+        }
+
+        this.#playerGame[x][y] = tile;
+        
+        return {position: [x,y], tileInfo: tile};
     }
 
     

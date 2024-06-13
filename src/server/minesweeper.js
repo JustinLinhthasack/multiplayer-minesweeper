@@ -109,19 +109,36 @@ class Minesweeper {
     }
 
     checkTile(x,y) {
-        if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0)) {
+        x = Number(x);
+        y = Number(y);
+
+        if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0) || (this.#playerGame[x] && this.#playerGame[x][y] != null)) {
             return false;
         }
 
         const tile = this.#actualBoard[x][y];
+        let foundTiles = [];
 
         if (!this.#playerGame[x]) {
             this.#playerGame[x] = [];
         }
 
         this.#playerGame[x][y] = tile;
+        foundTiles.push({position: [x,y], tileInfo: tile})
+
+        if (tile === 0) {
+            for (let i = -1; i < 2; i++) { 
+                for (let j = -1; j < 2; j++) {
+                    const result = this.checkTile(x + i,y + j);
+                    if (result) {
+                        foundTiles = foundTiles.concat(result);
+                    }
+                }
+            }
+        }
+
         
-        return {position: [x,y], tileInfo: tile};
+        return foundTiles;
     }
 
     

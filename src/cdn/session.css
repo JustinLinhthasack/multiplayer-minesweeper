@@ -3,6 +3,7 @@ body {
 }
 
 #mouseArea {
+    user-select: none;
     pointer-events: none;
     position: absolute;
     min-width: 100vw;
@@ -18,6 +19,7 @@ main {
 }
 
 #grid {
+    user-select: none;
     display: grid;
     border: 2px solid black;
     gap: 1px;

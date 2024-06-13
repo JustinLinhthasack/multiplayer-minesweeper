@@ -15,7 +15,6 @@ function socketSendJSON(jsonMessage) {
     const payload = JSON.stringify(jsonMessage);
     const payload_length = payload.length;
     const payload_length_bytes = getPayloadLengthBytes(payload_length);
-    console.log(payload_length_bytes)
 
     const headerSize = 2; // FIN RSV 1,2,3 OPCODE MASK BASE_LENGTH
     const buffer = Buffer.alloc(headerSize + payload_length_bytes + payload_length);
@@ -36,8 +35,6 @@ function socketSendJSON(jsonMessage) {
         buffer.fill(payload, headerSize + payload_length_bytes);
     }
    
-    
-    console.log(buffer)
     return buffer;
 }
 

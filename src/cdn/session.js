@@ -57,6 +57,9 @@ function handleServerData(type, data) {
                     cell.setAttribute('data-position', `${x + ',' + y}`);
                     cell.style.width = '25px';
                     cell.style.height = '25px';
+                    if (data.board[x] && data.board[x][y] != null) {
+                        cell.textContent = data.board[x][y];
+                    }
                     grid.appendChild(cell);
                 }
             }
@@ -75,6 +78,9 @@ function handleServerData(type, data) {
         case 'mouse':
            handleMouseData(data);
            break;
+        case 'disconnect':
+
+            break;
         default:
             warn("Something wrong occured on the server!");
     }
@@ -112,6 +118,7 @@ socket.addEventListener('close', ()=> {
 })
 
 socket.addEventListener("message", (event) => {
+    console.log('message received')
     try {
         const parsedData = JSON.parse(event.data);
 

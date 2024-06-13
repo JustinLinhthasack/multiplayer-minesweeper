@@ -67,7 +67,7 @@ class Session {
                         for (i = 0; i < this.#players.length; i++) {
                             this.#players[i].write(socketSendJSON({
                                 type: 'board',
-                                data: { position: result.position, tileInfo: result.tileInfo }
+                                data: result
                             }));
                         } 
                     }

@@ -70,10 +70,13 @@ function handleServerData(type, data) {
 
             break;
         case 'board':
-            const tile = document.querySelector(`[data-position="${data.position[0] + ',' + data.position[1]}"]`)
-            if (tile) {
-                tile.textContent = data.tileInfo;
+            for (i = 0; i < data.length; i++) {
+                const tile = document.querySelector(`[data-position="${data[i].position[0] + ',' + data[i].position[1]}"]`)
+                if (tile) {
+                    tile.textContent = data[i].tileInfo;
+                }
             }
+            
             break;
         case 'mouse':
            handleMouseData(data);
@@ -118,7 +121,6 @@ socket.addEventListener('close', ()=> {
 })
 
 socket.addEventListener("message", (event) => {
-    console.log('message received')
     try {
         const parsedData = JSON.parse(event.data);
 

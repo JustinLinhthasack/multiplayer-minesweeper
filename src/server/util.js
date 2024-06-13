@@ -22,7 +22,7 @@ function socketSendJSON(jsonMessage) {
     if (payload_length_bytes === 0) {
         buffer.fill(payload_length, 1, headerSize); 
     } else if (payload_length_bytes === 2) {
-        buffer.fill(126, 1, headerSize); 
+        buffer.fill(126, 1, headerSize); // Base length is now used to signal if the length needs extra bits or not.
         buffer.writeUInt16BE(payload_length, headerSize, headerSize + payload_length_bytes);
     } else if (payload_length_bytes === 6) {
         buffer.fill(127, 1, headerSize); 

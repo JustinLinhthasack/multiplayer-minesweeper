@@ -1,16 +1,43 @@
 // Script with all my utils, will refactor later.
 const { Buffer } = require('node:buffer');
 
+function getPayloadLengthBytes(number) {
+    if (number <= 125) {
+        return 0; // Uses the initial headerSize length
+    } else if (number <= 32,767) {
+        return 2; // Needs 16 extra bits.
+    } else if (number <= 2,147,483,647) {
+        return 6; // Needs 64 extra bits.
+    }
+}
+
 function socketSendJSON(jsonMessage) {
     const payload = JSON.stringify(jsonMessage);
+    const payload_length = payload.length;
+    const payload_length_bytes = getPayloadLengthBytes(payload_length);
+    console.log(payload_length_bytes)
 
-    const headerSize = 2; // FIN RSV 1,2,3 OPCODE MASK LENGTH
-    
-    const buffer = Buffer.alloc(headerSize + payload.length);
+    const headerSize = 2; // FIN RSV 1,2,3 OPCODE MASK BASE_LENGTH
+    const buffer = Buffer.alloc(headerSize + payload_length_bytes + payload_length);
     buffer.fill(129, 0, 1); // 1 0 0 0 (0 0 0 1) opcode 
-    buffer.fill(payload.length, 1, 2); // since mask will always be 0, we can ignore that first bit, the amount of data I will be sending shouldnt exceed size requirements.
-    buffer.fill(payload, 2); // everything else is the payload.
-
+    if (payload_length_bytes === 0) {
+        buffer.fill(payload_length, 1, headerSize); 
+    } else if (payload_length_bytes === 2) {
+        buffer.fill(126, 1, headerSize); 
+        buffer.writeUInt16BE(payload_length, headerSize, headerSize + payload_length_bytes);
+    } else if (payload_length_bytes === 6) {
+        buffer.fill(127, 1, headerSize); 
+        buffer.writeBigUInt64BE(payload_length, headerSize, headerSize + payload_length_bytes);
+    }
+    
+    if (payload_length_bytes === 0) { // everything else is the payload.
+        buffer.fill(payload, headerSize); 
+    } else {
+        buffer.fill(payload, headerSize + payload_length_bytes);
+    }
+   
+    
+    console.log(buffer)
     return buffer;
 }
 

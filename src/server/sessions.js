@@ -61,16 +61,34 @@ class Session {
                     this.handleMouseData(socket, parsedJSON);
                     break;
                 case 'board':
-                    let result = this.#minesweeper.checkTile(parsedJSON.data.x, parsedJSON.data.y);
-        
-                    if (result) {
+                    if (parsedJSON.data.positions) {
+                        let finalResult = [];
+                        for (i = 0; i < parsedJSON.data.positions.length; i++) {
+                            let result = this.#minesweeper.checkTile(parsedJSON.data.positions[i][0], parsedJSON.data.positions[i][1]);
+
+                            if (result) {
+                                finalResult = finalResult.concat(result);
+                            }
+                        }
                         for (i = 0; i < this.#players.length; i++) {
                             this.#players[i].write(socketSendJSON({
                                 type: 'board',
-                                data: result
+                                data: finalResult
                             }));
-                        } 
+                        }
+                    } else {
+                        let result = this.#minesweeper.checkTile(parsedJSON.data.x, parsedJSON.data.y);
+        
+                        if (result) {
+                            for (i = 0; i < this.#players.length; i++) {
+                                this.#players[i].write(socketSendJSON({
+                                    type: 'board',
+                                    data: result
+                                }));
+                            } 
+                        }
                     }
+                    
                     break;
                 
             }

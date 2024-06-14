@@ -57,12 +57,11 @@ function socketParseJSON(buffer) { // For now we'll assume all incoming messages
     for (i = 0; i < payload.length; i++) {
         parsedPayload[i] = maskingKey[i%4] ^ payload[i]; // For every byte the payload has, it unmasks in order of masking key. 1st byte goes with the 1st mask key byte, and so on loops every 5th byte. (4 % 4 == 0)
     }
-    
     try {
         const parsedJSON = JSON.parse(parsedPayload.toString());
         return parsedJSON;
     } catch(err) {
-        console.log("Was not valid JSON data.");
+        console.log("Was not valid JSON data.", err);
         return;
     }
     

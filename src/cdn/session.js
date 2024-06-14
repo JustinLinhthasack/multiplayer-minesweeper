@@ -21,7 +21,7 @@ function handleMouseData(data) {
     target.style.top = data.y+'px';
 }
 
-function handleCellClick(cell) {
+function handleCellLeftClick(cell) {
     const cellPosString = cell.target.getAttribute('data-position');
     if (cellPosString === null) {
         return;
@@ -37,6 +37,58 @@ function handleCellClick(cell) {
         }
     }));
 }
+
+function handleCellRightClick(cell) {
+    const cellPosString = cell.target.getAttribute('data-position');
+    if (cellPosString === null || cell.target.getAttribute('data-canFlag') === 'false') {
+        return;
+    }
+
+    const isFlagged = cell.target.getAttribute('data-isFlagged') === 'true';
+
+    if (isFlagged) {
+        cell.target.setAttribute('data-isFlagged', false);
+        cell.target.textContent = '';
+    } else {
+        cell.target.setAttribute('data-isFlagged', true);
+        cell.target.textContent = '🚩';
+    }
+
+    
+}
+
+function handleCellMiddleClick(cell) {
+    const cellPosString = cell.target.getAttribute('data-position');
+    if (cellPosString === null || cell.target.getAttribute('data-isFlagged') === 'true' || cell.target.getAttribute('data-canFlag') === 'true') {
+        return;
+    }
+
+    const cellPos = cellPosString.split(',');
+
+    let pos = [];
+    let flagCount = 0;
+    for (let i = -1; i < 2; i++) { 
+        for (let j = -1; j < 2; j++) {
+            const nearbyCell = document.querySelector(`[data-position="${(+cellPos[0] + i) + ',' + (+cellPos[1] + j)}"]`)
+            if (nearbyCell.getAttribute('data-isFlagged') === 'true') {
+                flagCount++;
+            }
+            if (nearbyCell && nearbyCell.getAttribute('data-canFlag') === 'true' && nearbyCell.getAttribute('data-isFlagged') != 'true') {
+                
+                pos.push([+cellPos[0] + i, +cellPos[1] + j]);
+            }
+        }
+    }
+
+    if (flagCount < cell.target.textContent) {
+        return;
+    }
+    socket.send(JSON.stringify({
+        type: 'board',
+        data: {positions: pos}
+    }));
+}
+
 
 function handleServerData(type, data) {
     switch (type) {
@@ -59,6 +111,11 @@ function handleServerData(type, data) {
                     cell.style.height = '25px';
                     if (data.board[x] && data.board[x][y] != null) {
                         cell.textContent = data.board[x][y];
+                    } else {
+                        cell.setAttribute('data-canFlag', true);
+                    }
+                    grid.oncontextmenu = (e) => {
+                        e.preventDefault();
                     }
                     grid.appendChild(cell);
                 }
@@ -73,7 +130,14 @@ function handleServerData(type, data) {
             for (i = 0; i < data.length; i++) {
                 const tile = document.querySelector(`[data-position="${data[i].position[0] + ',' + data[i].position[1]}"]`)
                 if (tile) {
-                    tile.textContent = data[i].tileInfo;
+                    tile.style.backgroundColor = 'lightgray';
+                    tile.setAttribute('data-canFlag', false);
+                    if (data[i].tileInfo === -1) {
+                        tile.textContent = '💣';
+                    } else if (data[i].tileInfo) { // ignores any 0s
+                        tile.textContent = data[i].tileInfo;
+                    }
+                    
                 }
             }
             
@@ -105,19 +169,29 @@ function sendMousePos(event) {
     }));
 }
 
+function handleMouseDown(e) {
+    if (e.button === 0) {
+        handleCellLeftClick(e);
+    } else if (e.button === 2) {
+        handleCellRightClick(e);
+    } else if (e.button === 1) {
+        handleCellMiddleClick(e);
+    }
+}
+
 
 socket.addEventListener("open", (e) => {
     const connecting = document.getElementById("connecting")
     connecting.remove();
 
     
-
+    main.addEventListener('mousedown', handleMouseDown);
     addEventListener('mousemove', sendMousePos);
 })
 
 socket.addEventListener('close', ()=> {
     removeEventListener('mousemove', sendMousePos);
-    main.removeEventListener('click', handleCellClick);
+    main.removeEventListener('mousedown', handleMouseDown);
 })
 
 socket.addEventListener("message", (event) => {
@@ -135,4 +209,3 @@ socket.addEventListener("message", (event) => {
     }
 });
 
-main.addEventListener('click', handleCellClick);

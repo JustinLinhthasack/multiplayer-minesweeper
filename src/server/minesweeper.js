@@ -112,6 +112,10 @@ class Minesweeper {
         x = Number(x);
         y = Number(y);
 
+        if (isNaN(x) || isNaN(y)) {
+            return false;
+        }
+
         if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0) || (this.#playerGame[x] && this.#playerGame[x][y] != null)) {
             return false;
         }

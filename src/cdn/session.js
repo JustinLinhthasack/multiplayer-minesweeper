@@ -5,20 +5,22 @@ const main = document.querySelector('main');
 
 function handleMouseData(data) {
     let target = document.getElementById("player-" + data.playerId);
-    if (!target) {
-        const div = document.createElement("div");
-        div.style.position = "absolute";
-        div.style.width = "10px";
-        div.style.height = "10px";
-        div.style.backgroundColor = "rgb(0,0,0)";
-        div.style.borderRadius = '50%';
-        div.id = "player-"+data.playerId;
-        target = div;
-        document.getElementById("mouseArea").appendChild(div);
+    if (target) {
+        let targetX = (document.documentElement.clientWidth/2 + data.x);
+        let targetY = (document.documentElement.clientHeight/2 + data.y);
+
+        if (targetX < 0 || targetX > document.documentElement.clientWidth - 5) {
+            targetX = targetX < 0 ? 0 : document.documentElement.clientWidth - 5;
+        } 
+        if (targetY < 0 || targetY > document.documentElement.clientHeight - 5) {
+            targetY = targetY < 0 ? 0 : document.documentElement.clientHeight - 5;
+        } 
+
+        target.style.left = targetX+'px';
+        target.style.top = targetY+'px';
     }
 
-    target.style.left = data.x+'px';
-    target.style.top = data.y+'px';
+    
 }
 
 function handleCellLeftClick(cell) {
@@ -36,6 +38,25 @@ function handleCellLeftClick(cell) {
             y: cellPos[1]
         }
     }));
+}
+
+function handlePlayerConnect(data) {
+    const div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.width = "10px";
+    div.style.height = "10px";
+    div.style.backgroundColor = "rgb(0,0,0)";
+    div.style.borderRadius = '50%';
+    div.id = "player-"+data.playerId;
+    target = div;
+    document.getElementById("mouseArea").appendChild(div);
+}
+
+function handlePlayerDisconnect(data) {
+    const playerCursor = document.getElementById('player-'+data.playerId);
+    if (playerCursor) {
+        playerCursor.remove();
+    }
 }
 
 function handleCellRightClick(cell) {
@@ -70,7 +91,7 @@ function handleCellMiddleClick(cell) {
     for (let i = -1; i < 2; i++) { 
         for (let j = -1; j < 2; j++) {
             const nearbyCell = document.querySelector(`[data-position="${(+cellPos[0] + i) + ',' + (+cellPos[1] + j)}"]`)
-            if (nearbyCell.getAttribute('data-isFlagged') === 'true') {
+            if (nearbyCell && nearbyCell.getAttribute('data-isFlagged') === 'true') {
                 flagCount++;
             }
             if (nearbyCell && nearbyCell.getAttribute('data-canFlag') === 'true' && nearbyCell.getAttribute('data-isFlagged') != 'true') {
@@ -110,7 +131,13 @@ function handleServerData(type, data) {
                     cell.style.width = '25px';
                     cell.style.height = '25px';
                     if (data.board[x] && data.board[x][y] != null) {
-                        cell.textContent = data.board[x][y];
+                        cell.style.backgroundColor = 'lightgray';
+                        cell.setAttribute('data-canFlag', false);
+                        if (data.board[x][y] === -1) {
+                            cell.textContent = '💣';
+                        } else if (data.board[x][y]) { // ignores any 0s
+                            cell.textContent = data.board[x][y];
+                        }
                     } else {
                         cell.setAttribute('data-canFlag', true);
                     }
@@ -145,8 +172,11 @@ function handleServerData(type, data) {
         case 'mouse':
            handleMouseData(data);
            break;
+        case 'connect':
+            handlePlayerConnect(data);
+            break;
         case 'disconnect':
-
+            handlePlayerDisconnect(data);
             break;
         default:
             warn("Something wrong occured on the server!");
@@ -163,8 +193,8 @@ function sendMousePos(event) {
     socket.send(JSON.stringify({
         type: 'mouse', 
         data: {
-            x: event.x,
-            y: event.y
+            x: (event.x - document.documentElement.clientWidth/2 - 2.5), // 3.5 is cursor offset.
+            y: (event.y  - document.documentElement.clientHeight/2 - 2.5)
         }
     }));
 }

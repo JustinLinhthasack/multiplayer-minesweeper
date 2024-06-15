@@ -1,8 +1,7 @@
 // Minesweeper game logic
 
-const { start } = require("repl");
-
 const TILE_TYPES = {
+    FLAG: -3,
     UNSET: -2,
     BOMB: -1,
     // Any other byte is a count referencing the amount of bombs around that tile

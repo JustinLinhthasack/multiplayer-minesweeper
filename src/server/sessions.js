@@ -18,7 +18,6 @@ class Session {
 
     createGame() {
         this.#minesweeper = new Minesweeper(25,25);
-        this.#minesweeper.generateMatrixFromTile(0,0)
     }
 
     handleMouseData(socket, parsedJSON) {
@@ -64,6 +63,16 @@ class Session {
                     this.handleMouseData(socket, parsedJSON);
                     break;
                 case 'board':
+                    if (!this.#minesweeper.hasStarted) {
+                        this.#minesweeper.hasStarted = true;
+
+                        let result = this.#minesweeper.generateMatrixFromTile(parsedJSON.data.x, parsedJSON.data.y)
+                        if (!result) {
+                            this.disconnectPlayer(socket);
+                            return;
+                        }
+                    }
+
                     if (parsedJSON.data.positions) {
                         let finalResult = [];
                         for (i = 0; i < parsedJSON.data.positions.length; i++) {

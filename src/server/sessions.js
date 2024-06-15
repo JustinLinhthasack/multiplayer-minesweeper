@@ -1,4 +1,5 @@
 const Minesweeper = require("./minesweeper");
+const crypto = require('node:crypto');
 const { socketParseJSON, socketSendJSON } = require("./util");
 
 class Session {
@@ -9,7 +10,7 @@ class Session {
     #sessionID = null;
 
     #blacklist = [];
-    #players = [];
+    #players = {};
 
     constructor(sessionID) {
         this.#sessionID = sessionID;
@@ -23,16 +24,16 @@ class Session {
     handleMouseData(socket, parsedJSON) {
         
 
-        parsedJSON.data.playerId = socket.playerIndex;
+        parsedJSON.data.playerId = socket.identifier;
 
-        for (i = 0; i < this.#players.length; i++) {
-            if (i == socket.playerIndex || this.#players[i] === null) {
+        for (let identifier in this.#players) {
+            const playerSocket = this.#players[identifier];
+            if (socket == playerSocket) {
                 continue;
             }
+            playerSocket.write(socketSendJSON(parsedJSON));
+        }
 
-
-            this.#players[i].write(socketSendJSON(parsedJSON));
-        } 
     }
 
     connectPlayer(socket) {
@@ -40,8 +41,10 @@ class Session {
             this.#creator = socket; // First connection should always be the one who created it as it redirects them instantly.
         }
 
-        let index = this.#players.push(socket) - 1;
-        socket.playerIndex = index;
+        let newidentifier = crypto.randomUUID();
+        socket.identifier = newidentifier
+        this.#players[newidentifier] = socket
+        
 
         socket.write(socketSendJSON({
             type: "init", 
@@ -70,8 +73,10 @@ class Session {
                                 finalResult = finalResult.concat(result);
                             }
                         }
-                        for (i = 0; i < this.#players.length; i++) {
-                            this.#players[i].write(socketSendJSON({
+                        for (let identifier in this.#players) {
+                            
+                            const playerSocket = this.#players[identifier];
+                            playerSocket.write(socketSendJSON({
                                 type: 'board',
                                 data: finalResult
                             }));
@@ -80,12 +85,13 @@ class Session {
                         let result = this.#minesweeper.checkTile(parsedJSON.data.x, parsedJSON.data.y);
         
                         if (result) {
-                            for (i = 0; i < this.#players.length; i++) {
-                                this.#players[i].write(socketSendJSON({
+                            for (let identifier in this.#players) {
+                                const playerSocket = this.#players[identifier];
+                                playerSocket.write(socketSendJSON({
                                     type: 'board',
                                     data: result
                                 }));
-                            } 
+                            }
                         }
                     }
                     
@@ -96,29 +102,46 @@ class Session {
         });
 
         socket.on('error', ()=>{
-            this.disconnectPlayer(socket, index);
+            this.disconnectPlayer(socket);
         });
         socket.on('close', ()=>{
-            this.disconnectPlayer(socket, index);
+            this.disconnectPlayer(socket);
         });
+
+        for (let identifier in this.#players) {
+            const playerSocket = this.#players[identifier];
+            if (socket == playerSocket) {
+                continue;
+            }
+            playerSocket.write(socketSendJSON({type: 'connect', data: {playerId: newidentifier}}))
+        }
 
     }
 
-    disconnectPlayer(socket, index) {
+    disconnectPlayer(socket) {
         if (socket.destroying) {
             // socket.destroying doesn't exist outside of our use case for any onlookers, this is to make sure we only cleanup this player once.
             // I could have also checked if they already been removed from the array, but I felt this was more relevant and made more sense.
             return; 
         }
         socket.destroying = true;
-        this.#players.splice(index, 1);
-        //console.log(this.#players)
+        for (let identifier in this.#players) {
+            const playerSocket = this.#players[identifier];
+            if (socket == playerSocket) {
+                continue;
+            }
+            playerSocket.write(socketSendJSON({type: 'disconnect', data: {playerId: socket.identifier}}));
+        }
 
+        delete this.#players[socket.identifier];
+        
         socket.end();
 
-        if (this.#players.length === 0) {
-            delete Session.sessions[this.#sessionID]
+        for (let identifier in this.#players) { // If found, we just return.
+            return;
         }
+
+        delete Session.sessions[this.#sessionID]
     }
 
     kickPlayer(initiator, victim) {

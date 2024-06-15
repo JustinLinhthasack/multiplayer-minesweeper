@@ -1,5 +1,7 @@
 // Minesweeper game logic
 
+const { start } = require("repl");
+
 const TILE_TYPES = {
     UNSET: -2,
     BOMB: -1,
@@ -12,6 +14,7 @@ class Minesweeper {
     #bombPercent = .2;
     #actualBoard = [];
     #playerGame = []; // This is what the player's see
+    #started = false;
 
     constructor(sizeHeight, sizeWidth) {
         this.#sizeX = sizeHeight;
@@ -28,11 +31,30 @@ class Minesweeper {
         }
     }
 
+    get hasStarted() {
+        return this.#started;
+    }
+
+    set hasStarted(bool) {
+        this.#started = true;
+    }
+
     get playerBoard() {
         return this.#playerGame;
     }
 
     generateMatrixFromTile(startX,startY) { 
+
+        startX = Number(startX);
+        startY = Number(startY);
+
+        if (isNaN(startX) || isNaN(startY)) {
+            return false;
+        }
+
+        if ((startX >= this.#sizeX || startX < 0) || (startY >= this.#sizeY || startY < 0)) {
+            return false;
+        }
 
         for (let x = 0; x < this.#sizeX; x++) { // Initializes the matrix to unsets
             this.#actualBoard[x] = [];
@@ -105,7 +127,7 @@ class Minesweeper {
 
         //console.log("FULL BOARD")
         //this.toString();
-
+        return true;
     }
 
     checkTile(x,y) {

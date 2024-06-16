@@ -59,6 +59,24 @@ class Session {
             }
 
             switch (parsedJSON.type) {
+                case 'rightclick':
+                    let result = this.#minesweeper.toggleFlag(parsedJSON.data.x, parsedJSON.data.y);
+                    if (result) {
+                        for (let identifier in this.#players) {
+                            
+                            const playerSocket = this.#players[identifier];
+                            if (socket === playerSocket) {
+                                continue; // Already updated on their client.
+                            }
+
+                            playerSocket.write(socketSendJSON({
+                                type: 'board',
+                                data: result
+                            }));
+                        }
+                    } 
+                    
+                    break;
                 case 'mouse':
                     this.handleMouseData(socket, parsedJSON);
                     break;

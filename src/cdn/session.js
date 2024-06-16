@@ -25,7 +25,7 @@ function handleMouseData(data) {
 
 function handleCellLeftClick(cell) {
     const cellPosString = cell.target.getAttribute('data-position');
-    if (cellPosString === null) {
+    if (cellPosString === null || cell.target.getAttribute('data-isFlagged') === 'true') {
         return;
     }
 
@@ -65,6 +65,7 @@ function handleCellRightClick(cell) {
         return;
     }
 
+    const cellPos = cellPosString.split(',');
     const isFlagged = cell.target.getAttribute('data-isFlagged') === 'true';
 
     if (isFlagged) {
@@ -75,7 +76,10 @@ function handleCellRightClick(cell) {
         cell.target.textContent = '🚩';
     }
 
-    
+    socket.send(JSON.stringify({
+        type: 'rightclick',
+        data: {x: cellPos[0], y: cellPos[1]}
+    }));
 }
 
 function handleCellMiddleClick(cell) {
@@ -135,6 +139,11 @@ function handleServerData(type, data) {
                         cell.setAttribute('data-canFlag', false);
                         if (data.board[x][y] === -1) {
                             cell.textContent = '💣';
+                        } else if (data.board[x][y] === -3) {
+                            cell.setAttribute('data-canFlag', true);
+                            cell.setAttribute('data-isFlagged', true);
+                            cell.style.backgroundColor = 'rgb(143, 141, 141)';
+                            cell.textContent = '🚩';
                         } else if (data.board[x][y]) { // ignores any 0s
                             cell.textContent = data.board[x][y];
                         }
@@ -161,8 +170,18 @@ function handleServerData(type, data) {
                     tile.setAttribute('data-canFlag', false);
                     if (data[i].tileInfo === -1) {
                         tile.textContent = '💣';
+                    } else if (data[i].tileInfo === -3) {
+                        tile.setAttribute('data-isFlagged', true);
+                        tile.setAttribute('data-canFlag', true);
+                        tile.style.backgroundColor = 'rgb(143, 141, 141)';
+                        tile.textContent = '🚩';
                     } else if (data[i].tileInfo) { // ignores any 0s
                         tile.textContent = data[i].tileInfo;
+                    } else if (data[i].tileInfo === null) {
+                        tile.setAttribute('data-canFlag', false);
+                        tile.setAttribute('data-isFlagged', false);
+                        tile.style.backgroundColor = 'rgb(143, 141, 141)';
+                        tile.textContent = '';
                     }
                     
                 }

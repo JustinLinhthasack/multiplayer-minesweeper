@@ -129,6 +129,33 @@ class Minesweeper {
         return true;
     }
 
+    toggleFlag(x,y) {
+        x = Number(x);
+        y = Number(y);
+
+        if (isNaN(x) || isNaN(y)) {
+            return false;
+        }
+
+        if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0) || (this.#playerGame[x] && this.#playerGame[x][y] != null && this.#playerGame[x][y] != -3 )) {
+            return false;
+        }
+
+        if (!this.#playerGame[x]) {
+            this.#playerGame[x] = [];
+        }
+
+        const previousTileInfo = this.#playerGame[x][y];
+
+        if (previousTileInfo === TILE_TYPES.FLAG) {
+            this.#playerGame[x][y] = null;
+        } else {
+            this.#playerGame[x][y] = TILE_TYPES.FLAG;
+        }
+
+        return [{position: [x,y], tileInfo: this.#playerGame[x][y]}];
+    }
+
     checkTile(x,y) {
         x = Number(x);
         y = Number(y);
@@ -137,7 +164,7 @@ class Minesweeper {
             return false;
         }
 
-        if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0) || (this.#playerGame[x] && this.#playerGame[x][y] != null)) {
+        if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0) || (this.#playerGame[x] && (this.#playerGame[x][y] != null && this.#playerGame[x][y] != -3))) {
             return false;
         }
 

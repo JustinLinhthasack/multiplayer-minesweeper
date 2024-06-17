@@ -4,9 +4,9 @@ const { Buffer } = require('node:buffer');
 function getPayloadLengthBytes(number) {
     if (number <= 125) {
         return 0; // Uses the initial headerSize length
-    } else if (number <= 32,767) {
+    } else if (number <= 32, 767) {
         return 2; // Needs 16 extra bits.
-    } else if (number <= 2,147,483,647) {
+    } else if (number <= 2, 147, 483, 647) {
         return 6; // Needs 64 extra bits.
     }
 }
@@ -20,21 +20,21 @@ function socketSendJSON(jsonMessage) {
     const buffer = Buffer.alloc(headerSize + payload_length_bytes + payload_length);
     buffer.fill(129, 0, 1); // 1 0 0 0 (0 0 0 1) opcode 
     if (payload_length_bytes === 0) {
-        buffer.fill(payload_length, 1, headerSize); 
+        buffer.fill(payload_length, 1, headerSize);
     } else if (payload_length_bytes === 2) {
         buffer.fill(126, 1, headerSize); // Base length is now used to signal if the length needs extra bits or not.
         buffer.writeUInt16BE(payload_length, headerSize, headerSize + payload_length_bytes);
     } else if (payload_length_bytes === 6) {
-        buffer.fill(127, 1, headerSize); 
+        buffer.fill(127, 1, headerSize);
         buffer.writeBigUInt64BE(payload_length, headerSize, headerSize + payload_length_bytes);
     }
-    
+
     if (payload_length_bytes === 0) { // everything else is the payload.
-        buffer.fill(payload, headerSize); 
+        buffer.fill(payload, headerSize);
     } else {
         buffer.fill(payload, headerSize + payload_length_bytes);
     }
-   
+
     return buffer;
 }
 
@@ -50,22 +50,22 @@ function socketParseJSON(buffer) { // For now we'll assume all incoming messages
         return;
     }
 
-    const maskingKey = buffer.subarray(2,6);
+    const maskingKey = buffer.subarray(2, 6);
     const payload = buffer.subarray(6);
-    const parsedPayload =  Buffer.alloc(payload.length);
+    const parsedPayload = Buffer.alloc(payload.length);
 
     for (i = 0; i < payload.length; i++) {
-        parsedPayload[i] = maskingKey[i%4] ^ payload[i]; // For every byte the payload has, it unmasks in order of masking key. 1st byte goes with the 1st mask key byte, and so on loops every 5th byte. (4 % 4 == 0)
+        parsedPayload[i] = maskingKey[i % 4] ^ payload[i]; // For every byte the payload has, it unmasks in order of masking key. 1st byte goes with the 1st mask key byte, and so on loops every 5th byte. (4 % 4 == 0)
     }
     try {
         const parsedJSON = JSON.parse(parsedPayload.toString());
         return parsedJSON;
-    } catch(err) {
+    } catch (err) {
         console.log("Was not valid JSON data.", err);
         return;
     }
-    
-   
+
+
 }
 
-module.exports = {socketSendJSON, socketParseJSON};
+module.exports = { socketSendJSON, socketParseJSON };

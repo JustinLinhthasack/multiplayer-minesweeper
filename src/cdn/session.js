@@ -6,21 +6,21 @@ const main = document.querySelector('main');
 function handleMouseData(data) {
     let target = document.getElementById("player-" + data.playerId);
     if (target) {
-        let targetX = (document.documentElement.clientWidth/2 + data.x);
-        let targetY = (document.documentElement.clientHeight/2 + data.y);
+        let targetX = (document.documentElement.clientWidth / 2 + data.x);
+        let targetY = (document.documentElement.clientHeight / 2 + data.y);
 
         if (targetX < 0 || targetX > document.documentElement.clientWidth - 5) {
             targetX = targetX < 0 ? 0 : document.documentElement.clientWidth - 5;
-        } 
+        }
         if (targetY < 0 || targetY > document.documentElement.clientHeight - 5) {
             targetY = targetY < 0 ? 0 : document.documentElement.clientHeight - 5;
-        } 
+        }
 
-        target.style.left = targetX+'px';
-        target.style.top = targetY+'px';
+        target.style.left = targetX + 'px';
+        target.style.top = targetY + 'px';
     }
 
-    
+
 }
 
 function handleCellLeftClick(cell) {
@@ -32,7 +32,7 @@ function handleCellLeftClick(cell) {
     const cellPos = cellPosString.split(',');
 
     socket.send(JSON.stringify({
-        type: 'board', 
+        type: 'board',
         data: {
             x: cellPos[0],
             y: cellPos[1]
@@ -47,13 +47,13 @@ function handlePlayerConnect(data) {
     div.style.height = "10px";
     div.style.backgroundColor = "rgb(0,0,0)";
     div.style.borderRadius = '50%';
-    div.id = "player-"+data.playerId;
+    div.id = "player-" + data.playerId;
     target = div;
     document.getElementById("mouseArea").appendChild(div);
 }
 
 function handlePlayerDisconnect(data) {
-    const playerCursor = document.getElementById('player-'+data.playerId);
+    const playerCursor = document.getElementById('player-' + data.playerId);
     if (playerCursor) {
         playerCursor.remove();
     }
@@ -78,7 +78,7 @@ function handleCellRightClick(cell) {
 
     socket.send(JSON.stringify({
         type: 'rightclick',
-        data: {x: cellPos[0], y: cellPos[1]}
+        data: { x: cellPos[0], y: cellPos[1] }
     }));
 }
 
@@ -92,14 +92,14 @@ function handleCellMiddleClick(cell) {
 
     let pos = [];
     let flagCount = 0;
-    for (let i = -1; i < 2; i++) { 
+    for (let i = -1; i < 2; i++) {
         for (let j = -1; j < 2; j++) {
             const nearbyCell = document.querySelector(`[data-position="${(+cellPos[0] + i) + ',' + (+cellPos[1] + j)}"]`)
             if (nearbyCell && nearbyCell.getAttribute('data-isFlagged') === 'true') {
                 flagCount++;
             }
             if (nearbyCell && nearbyCell.getAttribute('data-canFlag') === 'true' && nearbyCell.getAttribute('data-isFlagged') != 'true') {
-                
+
                 pos.push([+cellPos[0] + i, +cellPos[1] + j]);
             }
         }
@@ -110,7 +110,7 @@ function handleCellMiddleClick(cell) {
     }
     socket.send(JSON.stringify({
         type: 'board',
-        data: {positions: pos}
+        data: { positions: pos }
     }));
 }
 
@@ -127,7 +127,7 @@ function handleServerData(type, data) {
             grid.style.height = ySize * 25 + 24 + 'px'
             grid.style.gridTemplateRows = `repeat(${ySize}, 1fr)`;
             grid.style.gridTemplateColumns = `repeat(${xSize}, 1fr)`;
-        
+
             for (x = 0; x < xSize; x++) {
                 for (y = 0; y < ySize; y++) {
                     const cell = document.createElement('div');
@@ -159,7 +159,7 @@ function handleServerData(type, data) {
 
             main.appendChild(grid);
 
-            
+
 
             break;
         case 'board':
@@ -183,14 +183,14 @@ function handleServerData(type, data) {
                         tile.style.backgroundColor = 'rgb(143, 141, 141)';
                         tile.textContent = '';
                     }
-                    
+
                 }
             }
-            
+
             break;
         case 'mouse':
-           handleMouseData(data);
-           break;
+            handleMouseData(data);
+            break;
         case 'connect':
             handlePlayerConnect(data);
             break;
@@ -210,10 +210,10 @@ function sendMousePos(event) {
     lastUpdated = performance.now();
 
     socket.send(JSON.stringify({
-        type: 'mouse', 
+        type: 'mouse',
         data: {
-            x: (event.x - document.documentElement.clientWidth/2 - 2.5), // 3.5 is cursor offset.
-            y: (event.y  - document.documentElement.clientHeight/2 - 2.5)
+            x: (event.x - document.documentElement.clientWidth / 2 - 2.5), // 3.5 is cursor offset.
+            y: (event.y - document.documentElement.clientHeight / 2 - 2.5)
         }
     }));
 }
@@ -233,12 +233,12 @@ socket.addEventListener("open", (e) => {
     const connecting = document.getElementById("connecting")
     connecting.remove();
 
-    
+
     main.addEventListener('mousedown', handleMouseDown);
     addEventListener('mousemove', sendMousePos);
 })
 
-socket.addEventListener('close', ()=> {
+socket.addEventListener('close', () => {
     removeEventListener('mousemove', sendMousePos);
     main.removeEventListener('mousedown', handleMouseDown);
 })
@@ -253,7 +253,7 @@ socket.addEventListener("message", (event) => {
         }
 
         handleServerData(parsedData.type, parsedData.data);
-    } catch(err) {
+    } catch (err) {
         console.log("Invalid data sent from the server.", err);
     }
 });

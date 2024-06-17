@@ -12,11 +12,11 @@ const port = 3000;
 async function getHandler(req, res) {
   const url = req.url;
 
-  if (url.substring(1,4) == 'cdn') {
+  if (url.substring(1, 4) == 'cdn') {
     let cdnData = null;
     try {
       cdnData = await fs.readFile(path.join(__dirname, '..', req.url));
-    } 
+    }
     catch {
       cdnData = null;
     }
@@ -24,7 +24,7 @@ async function getHandler(req, res) {
     if (cdnData) {
       let contentType = null;
 
-      switch(path.extname(req.url)) {
+      switch (path.extname(req.url)) {
         case '.css':
           contentType = 'text/css';
           break;
@@ -43,7 +43,7 @@ async function getHandler(req, res) {
     return;
   }
 
-  switch(url) {
+  switch (url) {
     case '/':
       const htmlData = await fs.readFile(path.join(__dirname, '..', '/views/index.html'))
       res.statusCode = 200;
@@ -64,24 +64,24 @@ async function getHandler(req, res) {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/html');
       res.end(sessionData)
-      
+
   }
 }
 
-async function postHandler(req,res) {
+async function postHandler(req, res) {
   const url = req.url
 
-  switch(url) {
+  switch (url) {
     case '/createSession':
       const hash = crypto.randomBytes(4).toString('hex');
-      const sessionID = `/`+hash;
+      const sessionID = `/` + hash;
       const session = new Session(sessionID);
       session.createGame();
       sessions[sessionID] = session;
 
       res.statusCode = 200;
       res.setHeader('Location', sessionID); // Client will redirect themselves
- 
+
       res.end();
       break;
     default:
@@ -91,12 +91,12 @@ async function postHandler(req,res) {
 }
 
 function router(req, res) {
-  switch(req.method) {
+  switch (req.method) {
     case 'GET':
       getHandler(req, res);
       break;
     case 'POST':
-      postHandler(req,res);
+      postHandler(req, res);
       break;
     default:
       res.statusCode = 404;
@@ -119,17 +119,17 @@ server.on('upgrade', (req, socket) => {
 
   const session = sessions[req.url];
 
-  const acceptKey = req.headers['sec-websocket-key']; 
+  const acceptKey = req.headers['sec-websocket-key'];
 
   const hash = crypto
-              .createHash('sha1')
-              .update(acceptKey + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11', 'binary')
-              .digest('base64');
+    .createHash('sha1')
+    .update(acceptKey + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11', 'binary')
+    .digest('base64');
 
   socket.write(`HTTP/1.1 101 Switching Protocol\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-Websocket-Accept: ${hash}\r\n\r\n`);
-  
+
   session.connectPlayer(socket);
-  
+
 })
 
 

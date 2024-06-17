@@ -27,7 +27,7 @@ main {
     padding: 5px;
 }
 
-#grid > div {
+#grid>div {
     background-color: rgb(143, 141, 141);
     text-align: center;
     line-height: 25px
@@ -45,4 +45,3 @@ main {
     align-items: center;
     justify-content: center;
 }
-

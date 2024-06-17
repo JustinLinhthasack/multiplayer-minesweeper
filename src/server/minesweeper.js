@@ -21,7 +21,7 @@ class Minesweeper {
     }
 
     toString() { // for testing purposes, just prints out the game matrix in console.
-        for (let x = 0; x < this.#sizeX; x++) { 
+        for (let x = 0; x < this.#sizeX; x++) {
             let xString = "";
             for (let y = 0; y < this.#sizeY; y++) {
                 xString += this.#actualBoard[x][y] + " "
@@ -42,7 +42,7 @@ class Minesweeper {
         return this.#playerGame;
     }
 
-    generateMatrixFromTile(startX,startY) { 
+    generateMatrixFromTile(startX, startY) {
 
         startX = Number(startX);
         startY = Number(startY);
@@ -64,7 +64,7 @@ class Minesweeper {
 
         for (let i = -1; i < 2; i++) { // Sets initial 3 by 3 to 0s
             for (let j = -1; j < 2; j++) {
-                if (startX + i >= this.#sizeX ||  startX + i < 0 || startY + j >= this.#sizeY || startY + j < 0) {
+                if (startX + i >= this.#sizeX || startX + i < 0 || startY + j >= this.#sizeY || startY + j < 0) {
                     continue;
                 }
                 this.#actualBoard[startX + i][startY + j] = 0;
@@ -73,7 +73,7 @@ class Minesweeper {
 
         //console.log("INITIAL BOARD");
         //this.toString();
-    
+
 
         let amountOfBombs = (this.#sizeX * this.#sizeY) * this.#bombPercent;
 
@@ -105,8 +105,8 @@ class Minesweeper {
 
                     for (let i = -1; i < 2; i++) { // Counts surrounding tiles up by 1
                         for (let j = -1; j < 2; j++) {
-                            
-                            if (startX + i >= this.#sizeX ||  startX + i < 0 || startY + j >= this.#sizeY || startY + j < 0) {
+
+                            if (startX + i >= this.#sizeX || startX + i < 0 || startY + j >= this.#sizeY || startY + j < 0) {
                                 continue;
                             }
                             let tileType = this.#actualBoard[startX + i][startY + j];
@@ -129,7 +129,7 @@ class Minesweeper {
         return true;
     }
 
-    toggleFlag(x,y) {
+    toggleFlag(x, y) {
         x = Number(x);
         y = Number(y);
 
@@ -137,7 +137,7 @@ class Minesweeper {
             return false;
         }
 
-        if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0) || (this.#playerGame[x] && this.#playerGame[x][y] != null && this.#playerGame[x][y] != -3 )) {
+        if ((x >= this.#sizeX || x < 0) || (y >= this.#sizeY || y < 0) || (this.#playerGame[x] && this.#playerGame[x][y] != null && this.#playerGame[x][y] != -3)) {
             return false;
         }
 
@@ -153,10 +153,10 @@ class Minesweeper {
             this.#playerGame[x][y] = TILE_TYPES.FLAG;
         }
 
-        return [{position: [x,y], tileInfo: this.#playerGame[x][y]}];
+        return [{ position: [x, y], tileInfo: this.#playerGame[x][y] }];
     }
 
-    checkTile(x,y) {
+    checkTile(x, y) {
         x = Number(x);
         y = Number(y);
 
@@ -176,12 +176,12 @@ class Minesweeper {
         }
 
         this.#playerGame[x][y] = tile;
-        foundTiles.push({position: [x,y], tileInfo: tile})
+        foundTiles.push({ position: [x, y], tileInfo: tile })
 
         if (tile === 0) {
-            for (let i = -1; i < 2; i++) { 
+            for (let i = -1; i < 2; i++) {
                 for (let j = -1; j < 2; j++) {
-                    const result = this.checkTile(x + i,y + j);
+                    const result = this.checkTile(x + i, y + j);
                     if (result) {
                         foundTiles = foundTiles.concat(result);
                     }
@@ -189,11 +189,11 @@ class Minesweeper {
             }
         }
 
-        
+
         return foundTiles;
     }
 
-    
+
 
 }
 

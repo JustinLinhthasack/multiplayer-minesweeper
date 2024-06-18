@@ -1,5 +1,6 @@
 const Minesweeper = require("./minesweeper");
 const crypto = require('node:crypto');
+const Player = require('./player.js');
 const { socketParseJSON, socketSendJSON } = require("./util");
 
 class Session {
@@ -26,23 +27,23 @@ class Session {
         parsedJSON.data.playerId = socket.identifier;
 
         for (let identifier in this.#players) {
-            const playerSocket = this.#players[identifier];
-            if (socket == playerSocket) {
+            const player = this.#players[identifier];
+            if (socket == player.socket) {
                 continue;
             }
-            playerSocket.write(socketSendJSON(parsedJSON));
+            player.socket.write(socketSendJSON(parsedJSON));
         }
 
     }
 
-    connectPlayer(socket) {
+    connectPlayer(socket, name) {
         if (this.#creator === null) {
             this.#creator = socket; // First connection should always be the one who created it as it redirects them instantly.
         }
 
         let newidentifier = crypto.randomUUID();
         socket.identifier = newidentifier
-        this.#players[newidentifier] = socket
+        this.#players[newidentifier] = new Player(name, socket)
 
 
         socket.write(socketSendJSON({
@@ -64,12 +65,12 @@ class Session {
                     if (result) {
                         for (let identifier in this.#players) {
 
-                            const playerSocket = this.#players[identifier];
-                            if (socket === playerSocket) {
+                            const player = this.#players[identifier];
+                            if (socket === player.socket) {
                                 continue; // Already updated on their client.
                             }
 
-                            playerSocket.write(socketSendJSON({
+                            player.socket.write(socketSendJSON({
                                 type: 'board',
                                 data: result
                             }));
@@ -102,8 +103,8 @@ class Session {
                         }
                         for (let identifier in this.#players) {
 
-                            const playerSocket = this.#players[identifier];
-                            playerSocket.write(socketSendJSON({
+                            const player = this.#players[identifier];
+                            player.socket.write(socketSendJSON({
                                 type: 'board',
                                 data: finalResult
                             }));
@@ -113,8 +114,8 @@ class Session {
 
                         if (result) {
                             for (let identifier in this.#players) {
-                                const playerSocket = this.#players[identifier];
-                                playerSocket.write(socketSendJSON({
+                                const player = this.#players[identifier];
+                                player.socket.write(socketSendJSON({
                                     type: 'board',
                                     data: result
                                 }));
@@ -136,11 +137,11 @@ class Session {
         });
 
         for (let identifier in this.#players) {
-            const playerSocket = this.#players[identifier];
-            if (socket == playerSocket) {
+            const player = this.#players[identifier];
+            if (socket == player.socket) {
                 continue;
             }
-            playerSocket.write(socketSendJSON({ type: 'connect', data: { playerId: newidentifier } }))
+            player.socket.write(socketSendJSON({ type: 'connect', data: { playerId: newidentifier } }))
         }
 
     }
@@ -153,11 +154,11 @@ class Session {
         }
         socket.destroying = true;
         for (let identifier in this.#players) {
-            const playerSocket = this.#players[identifier];
-            if (socket == playerSocket) {
+            const player = this.#players[identifier];
+            if (socket == player.socket) {
                 continue;
             }
-            playerSocket.write(socketSendJSON({ type: 'disconnect', data: { playerId: socket.identifier } }));
+            player.socket.write(socketSendJSON({ type: 'disconnect', data: { playerId: socket.identifier } }));
         }
 
         delete this.#players[socket.identifier];

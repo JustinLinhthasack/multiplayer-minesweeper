@@ -6,13 +6,15 @@ form.onsubmit = (e) => {
 
     const displayName = form.elements["display-name"]
 
-    form.remove();
+    
 
     const url = new URL(window.location.href);
     const socket = new WebSocket(`ws://${url.hostname}:${url.port}${url.pathname}?display-name=${displayName.value}`);
     socket.onerror = function() {
         window.location.href = '/';
     };
+
+    document.querySelector('#modal').remove();
 
     function handleMouseData(data) {
         let target = document.getElementById("player-" + data.playerId);

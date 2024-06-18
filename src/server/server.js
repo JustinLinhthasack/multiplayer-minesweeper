@@ -3,6 +3,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const Session = require('./sessions.js');
+const {URL} = require('node:url');
 
 const sessions = Session.sessions;
 
@@ -112,12 +113,14 @@ let firstsocket = null;
 
 server.on('upgrade', (req, socket) => {
 
-  if (req.headers['upgrade'] !== 'websocket' || !sessions[req.url]) {
+ 
+  const url = new URL(`http://${hostname}:${port}${req.url}`);
+  if (req.headers['upgrade'] !== 'websocket' || !sessions[url.pathname] || url.searchParams.get('display-name') === undefined) {
     socket.end();
     return;
   }
 
-  const session = sessions[req.url];
+  const session = sessions[url.pathname];
 
   const acceptKey = req.headers['sec-websocket-key'];
 
@@ -128,7 +131,7 @@ server.on('upgrade', (req, socket) => {
 
   socket.write(`HTTP/1.1 101 Switching Protocol\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-Websocket-Accept: ${hash}\r\n\r\n`);
 
-  session.connectPlayer(socket);
+  session.connectPlayer(socket, url.searchParams.get('display-name'));
 
 })
 

@@ -33,15 +33,12 @@ main {
     line-height: 25px
 }
 
-#connecting {
+#modal {
     position: absolute;
     min-width: 100vw;
     min-height: 100vh;
     z-index: 3;
 
     display: grid;
-    width: 200px;
-    height: 150px;
-    align-items: center;
-    justify-content: center;
+    place-items: center;;
 }

@@ -114,7 +114,7 @@ let firstsocket = null;
 server.on('upgrade', (req, socket) => {
 
  
-  const url = new URL(`http://${hostname}:${port}${req.url}`);
+  const url = new URL(`ws://${hostname}:${port}${req.url}`);
   if (req.headers['upgrade'] !== 'websocket' || !sessions[url.pathname] || url.searchParams.get('display-name') === undefined) {
     socket.end();
     return;

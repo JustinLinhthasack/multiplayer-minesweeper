@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    background-color: #FCF6F5FF;
 }
 
 #mouseArea {
@@ -28,7 +29,7 @@ main {
 }
 
 #grid>div {
-    background-color: rgb(143, 141, 141);
+    background-color: #101820FF;
     text-align: center;
     line-height: 25px
 }

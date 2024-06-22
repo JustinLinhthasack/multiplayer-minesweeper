@@ -58,7 +58,7 @@ form.onsubmit = (e) => {
         div.style.position = "absolute";
         div.style.width = "10px";
         div.style.height = "10px";
-        div.style.backgroundColor = "rgb(0,0,0)";
+        div.style.backgroundColor = "black";
         div.style.borderRadius = '50%';
         div.id = "player-" + data.playerId;
         target = div;
@@ -148,14 +148,14 @@ form.onsubmit = (e) => {
                         cell.style.width = '25px';
                         cell.style.height = '25px';
                         if (data.board[x] && data.board[x][y] != null) {
-                            cell.style.backgroundColor = 'lightgray';
+                            cell.style.backgroundColor = '#FCF6F5FF';
                             cell.setAttribute('data-canFlag', false);
                             if (data.board[x][y] === -1) {
                                 cell.textContent = '💣';
                             } else if (data.board[x][y] === -3) {
                                 cell.setAttribute('data-canFlag', true);
                                 cell.setAttribute('data-isFlagged', true);
-                                cell.style.backgroundColor = 'rgb(143, 141, 141)';
+                                cell.style.backgroundColor = '#101820FF';
                                 cell.textContent = '🚩';
                             } else if (data.board[x][y]) { // ignores any 0s
                                 cell.textContent = data.board[x][y];
@@ -179,21 +179,21 @@ form.onsubmit = (e) => {
                 for (i = 0; i < data.length; i++) {
                     const tile = document.querySelector(`[data-position="${data[i].position[0] + ',' + data[i].position[1]}"]`)
                     if (tile) {
-                        tile.style.backgroundColor = 'lightgray';
+                        tile.style.backgroundColor = '#FCF6F5FF';
                         tile.setAttribute('data-canFlag', false);
                         if (data[i].tileInfo === -1) {
                             tile.textContent = '💣';
                         } else if (data[i].tileInfo === -3) {
                             tile.setAttribute('data-isFlagged', true);
                             tile.setAttribute('data-canFlag', true);
-                            tile.style.backgroundColor = 'rgb(143, 141, 141)';
+                            tile.style.backgroundColor = '#101820FF';
                             tile.textContent = '🚩';
                         } else if (data[i].tileInfo) { // ignores any 0s
                             tile.textContent = data[i].tileInfo;
                         } else if (data[i].tileInfo === null) {
                             tile.setAttribute('data-canFlag', false);
                             tile.setAttribute('data-isFlagged', false);
-                            tile.style.backgroundColor = 'rgb(143, 141, 141)';
+                            tile.style.backgroundColor = '#101820FF';
                             tile.textContent = '';
                         }
     

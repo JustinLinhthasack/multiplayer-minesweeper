@@ -138,10 +138,14 @@ class Session {
 
         for (let identifier in this.#players) {
             const player = this.#players[identifier];
-            if (socket == player.socket) {
-                continue;
+            if (identifier != newidentifier) { // Sends the person connecting everyone elses data
+                socket.write(socketSendJSON({ type: 'connect', data: { playerId: identifier, displayName: player.name, wins: 0, bombs: 0 } }))
             }
-            player.socket.write(socketSendJSON({ type: 'connect', data: { playerId: newidentifier } }))
+
+            // Tells everyone of the new player
+            
+            const newPlayer = this.#players[newidentifier];
+            player.socket.write(socketSendJSON({ type: 'connect', data: { playerId: newidentifier, displayName: newPlayer.name, wins: 0, bombs: 0 } }))
         }
 
     }

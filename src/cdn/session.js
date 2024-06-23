@@ -1,5 +1,6 @@
 const main = document.querySelector('main');
 const form = document.querySelector('#connect');
+let player_id = null;
 
 form.onsubmit = (e) => {
     e.preventDefault();
@@ -52,8 +53,8 @@ form.onsubmit = (e) => {
             }
         }));
     }
-    
-    function handlePlayerConnect(data) {
+
+    function createMouseElement(data) {
         const div = document.createElement("div");
         div.style.position = "absolute";
         div.style.width = "10px";
@@ -64,11 +65,40 @@ form.onsubmit = (e) => {
         target = div;
         document.getElementById("mouseArea").appendChild(div);
     }
+
+    function createPlayerListElement(data) {
+        const tr = document.createElement('tr');
+        tr.id = 'playerList-' + data.playerId;
+        const name = document.createElement('td');
+        name.textContent = data.displayName;
+        const wins = document.createElement('td');
+        wins.textContent = data.wins;
+        const bombs = document.createElement('td');
+        bombs.textContent = data.bombs;
+
+        tr.append(name, wins, bombs);
+
+        document.querySelector('table').appendChild(tr);
+    }
+
+    function handlePlayerConnect(data) {
+        if (player_id === null && data.displayName === displayName) {
+            player_id = data.playerId;
+        }
+        if (data.playerId != player_id) {
+            createMouseElement(data);
+        }
+        createPlayerListElement(data);
+    }
     
     function handlePlayerDisconnect(data) {
         const playerCursor = document.getElementById('player-' + data.playerId);
+        const playerListElement = document.getElementById('playerList-' + data.playerId);
         if (playerCursor) {
             playerCursor.remove();
+        }
+        if (playerListElement) {
+            playerListElement.remove();
         }
     }
     
@@ -134,10 +164,9 @@ form.onsubmit = (e) => {
                 const xSize = data.size.x;
                 const ySize = data.size.y;
     
-                const grid = document.createElement("div");
-                grid.id = "grid";
-                grid.style.width = xSize * 25 + 24 + 'px'
-                grid.style.height = ySize * 25 + 24 + 'px'
+                const grid = document.querySelector('#grid');
+                grid.style.width = xSize * 25
+                grid.style.height = ySize * 25
                 grid.style.gridTemplateRows = `repeat(${ySize}, 1fr)`;
                 grid.style.gridTemplateColumns = `repeat(${xSize}, 1fr)`;
     
@@ -169,10 +198,6 @@ form.onsubmit = (e) => {
                         grid.appendChild(cell);
                     }
                 }
-    
-                main.appendChild(grid);
-    
-    
     
                 break;
             case 'board':

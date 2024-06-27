@@ -82,7 +82,7 @@ form.onsubmit = (e) => {
     }
 
     function handlePlayerConnect(data) {
-        if (player_id === null && data.displayName === displayName) {
+        if (player_id === null && data.displayName === displayName.value) {
             player_id = data.playerId;
         }
         if (data.playerId != player_id) {
@@ -275,6 +275,8 @@ form.onsubmit = (e) => {
     socket.addEventListener('close', () => {
         removeEventListener('mousemove', sendMousePos);
         main.removeEventListener('mousedown', handleMouseDown);
+
+        window.location.href = '/';
     })
     
     socket.addEventListener("message", (event) => {

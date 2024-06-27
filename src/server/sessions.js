@@ -13,6 +13,8 @@ class Session {
     #blacklist = [];
     #players = {};
 
+    #numOfPlayers = 0;
+
     constructor(sessionID) {
         this.#sessionID = sessionID;
     }
@@ -37,12 +39,18 @@ class Session {
     }
 
     connectPlayer(socket, name) {
+        if (this.#numOfPlayers >= 4) {
+            socket.end();
+            return;
+        }
+
         if (this.#creator === null) {
             this.#creator = socket; // First connection should always be the one who created it as it redirects them instantly.
         }
 
         let newidentifier = crypto.randomUUID();
         socket.identifier = newidentifier
+        this.#numOfPlayers++;
         this.#players[newidentifier] = new Player(name, socket)
 
 
@@ -165,6 +173,7 @@ class Session {
             player.socket.write(socketSendJSON({ type: 'disconnect', data: { playerId: socket.identifier } }));
         }
 
+        this.#numOfPlayers--;
         delete this.#players[socket.identifier];
 
         socket.end();

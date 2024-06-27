@@ -19,6 +19,10 @@ class Session {
         this.#sessionID = sessionID;
     }
 
+    get numOfPlayers() {
+        return this.#numOfPlayers;
+    }
+
     createGame() {
         this.#minesweeper = new Minesweeper(25, 25);
     }
@@ -39,11 +43,6 @@ class Session {
     }
 
     connectPlayer(socket, name) {
-        if (this.#numOfPlayers >= 4) {
-            socket.end();
-            return;
-        }
-
         if (this.#creator === null) {
             this.#creator = socket; // First connection should always be the one who created it as it redirects them instantly.
         }

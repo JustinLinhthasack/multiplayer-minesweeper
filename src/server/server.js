@@ -122,6 +122,11 @@ server.on('upgrade', (req, socket) => {
 
   const session = sessions[url.pathname];
 
+  if (session.numOfPlayers >= 4) {
+    socket.end();
+    return;
+  }
+
   const acceptKey = req.headers['sec-websocket-key'];
 
   const hash = crypto

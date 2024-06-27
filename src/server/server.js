@@ -3,7 +3,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const Session = require('./sessions.js');
-const {URL} = require('node:url');
+const { URL } = require('node:url');
 
 const sessions = Session.sessions;
 
@@ -113,16 +113,16 @@ let firstsocket = null;
 
 server.on('upgrade', (req, socket) => {
 
- 
   const url = new URL(`ws://${hostname}:${port}${req.url}`);
-  if (req.headers['upgrade'] !== 'websocket' || !sessions[url.pathname] || url.searchParams.get('display-name') === undefined) {
+
+  if (req.headers['upgrade'] !== 'websocket' || url.searchParams.get('display-name') === undefined) {
     socket.end();
     return;
   }
 
   const session = sessions[url.pathname];
 
-  if (session.numOfPlayers >= 4) {
+  if (!session || session.numOfPlayers >= 4) {
     socket.end();
     return;
   }

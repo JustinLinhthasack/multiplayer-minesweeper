@@ -11,6 +11,12 @@ class Session {
     #sessionID = null;
 
     #blacklist = [];
+    #colors = {
+        "red": false,
+        "blue": false,
+        "green": false,
+        "yellow": false
+    }
     #players = {};
 
     #numOfPlayers = 0;
@@ -21,6 +27,16 @@ class Session {
 
     get numOfPlayers() {
         return this.#numOfPlayers;
+    }
+
+    #getColor() {
+        for (let color in this.#colors) {
+            const isTaken = this.#colors[color];
+            if (!isTaken) {
+                this.#colors[color] = true;
+                return color;
+            }
+        }
     }
 
     createGame() {
@@ -50,7 +66,7 @@ class Session {
         let newidentifier = crypto.randomUUID();
         socket.identifier = newidentifier
         this.#numOfPlayers++;
-        this.#players[newidentifier] = new Player(name, socket)
+        this.#players[newidentifier] = new Player(name, socket, this.#getColor())
 
 
         socket.write(socketSendJSON({
@@ -146,13 +162,13 @@ class Session {
         for (let identifier in this.#players) {
             const player = this.#players[identifier];
             if (identifier != newidentifier) { // Sends the person connecting everyone elses data
-                socket.write(socketSendJSON({ type: 'connect', data: { playerId: identifier, displayName: player.name, wins: 0, bombs: 0 } }))
+                socket.write(socketSendJSON({ type: 'connect', data: { playerId: identifier, displayName: player.name, color: player.color, wins: 0, bombs: 0 } }))
             }
 
             // Tells everyone of the new player
             
             const newPlayer = this.#players[newidentifier];
-            player.socket.write(socketSendJSON({ type: 'connect', data: { playerId: newidentifier, displayName: newPlayer.name, wins: 0, bombs: 0 } }))
+            player.socket.write(socketSendJSON({ type: 'connect', data: { playerId: newidentifier, displayName: newPlayer.name, color: newPlayer.color, wins: 0, bombs: 0 } }))
         }
 
     }
@@ -173,6 +189,7 @@ class Session {
         }
 
         this.#numOfPlayers--;
+        this.#colors[this.#players[socket.identifier].color] = false;
         delete this.#players[socket.identifier];
 
         socket.end();

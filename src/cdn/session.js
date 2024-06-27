@@ -59,7 +59,7 @@ form.onsubmit = (e) => {
         div.style.position = "absolute";
         div.style.width = "10px";
         div.style.height = "10px";
-        div.style.backgroundColor = "black";
+        div.style.backgroundColor = data.color;
         div.style.borderRadius = '50%';
         div.id = "player-" + data.playerId;
         target = div;
@@ -69,6 +69,7 @@ form.onsubmit = (e) => {
     function createPlayerListElement(data) {
         const tr = document.createElement('tr');
         tr.id = 'playerList-' + data.playerId;
+        tr.style.color = data.color;
         const name = document.createElement('td');
         name.textContent = data.displayName;
         const wins = document.createElement('td');

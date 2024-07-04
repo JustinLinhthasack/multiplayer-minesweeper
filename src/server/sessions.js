@@ -71,7 +71,7 @@ class Session {
 
         socket.write(socketSendJSON({
             type: "init",
-            data: { size: { x: 25, y: 25 }, board: this.#minesweeper.playerBoard }
+            data: { size: { x: 25, y: 25 }, board: this.#minesweeper.playerBoard, totalMines: this.#minesweeper.totalMines }
         })); // sends the current gameState.
 
 

@@ -1,19 +1,23 @@
-const main = document.querySelector('main');
 const form = document.querySelector('#connect');
-let player_id = null;
+
 
 form.onsubmit = (e) => {
     e.preventDefault();
-
     const displayName = form.elements["display-name"]
-
-    
 
     const url = new URL(window.location.href);
     const socket = new WebSocket(`ws://${url.hostname}:${url.port}${url.pathname}?display-name=${displayName.value}`);
     socket.onerror = function() {
         window.location.href = '/';
     };
+
+    const main = document.querySelector('main');
+    const mineCount = document.querySelector('#mine');
+
+    
+    let player_id = null;
+
+    let totalMines = 0;
 
     document.querySelector('#modal').remove();
 
@@ -35,6 +39,12 @@ form.onsubmit = (e) => {
         }
     
     
+    }
+
+    function onFlagUpdate(inc) {
+        totalMines += inc;
+        mineCount.textContent = `Mine Count: ${totalMines}`;
+
     }
     
     function handleCellLeftClick(cell) {
@@ -115,9 +125,11 @@ form.onsubmit = (e) => {
         if (isFlagged) {
             cell.target.setAttribute('data-isFlagged', false);
             cell.target.textContent = '';
+            onFlagUpdate(1);
         } else {
             cell.target.setAttribute('data-isFlagged', true);
             cell.target.textContent = '🚩';
+            onFlagUpdate(-1);
         }
     
         socket.send(JSON.stringify({
@@ -170,6 +182,10 @@ form.onsubmit = (e) => {
                 grid.style.height = ySize * 25
                 grid.style.gridTemplateRows = `repeat(${ySize}, 1fr)`;
                 grid.style.gridTemplateColumns = `repeat(${xSize}, 1fr)`;
+
+                mineCount.textContent = `Mine Count: ${data.totalMines}`;
+
+                totalMines = data.totalMines;
     
                 for (x = 0; x < xSize; x++) {
                     for (y = 0; y < ySize; y++) {
@@ -187,6 +203,7 @@ form.onsubmit = (e) => {
                                 cell.setAttribute('data-isFlagged', true);
                                 cell.style.backgroundColor = '#101820FF';
                                 cell.textContent = '🚩';
+                                onFlagUpdate(-1);
                             } else if (data.board[x][y]) { // ignores any 0s
                                 cell.textContent = data.board[x][y];
                             }
@@ -214,13 +231,15 @@ form.onsubmit = (e) => {
                             tile.setAttribute('data-canFlag', true);
                             tile.style.backgroundColor = '#101820FF';
                             tile.textContent = '🚩';
+                            onFlagUpdate(-1);
                         } else if (data[i].tileInfo) { // ignores any 0s
                             tile.textContent = data[i].tileInfo;
                         } else if (data[i].tileInfo === null) {
-                            tile.setAttribute('data-canFlag', false);
+                            tile.setAttribute('data-canFlag', true);
                             tile.setAttribute('data-isFlagged', false);
                             tile.style.backgroundColor = '#101820FF';
                             tile.textContent = '';
+                            onFlagUpdate(1);
                         }
     
                     }

@@ -29,6 +29,10 @@ class Minesweeper {
             console.log(xString);
         }
     }
+    
+    get totalMines() {
+        return (this.#sizeX * this.#sizeY) * this.#bombPercent;
+    }
 
     get hasStarted() {
         return this.#started;
@@ -75,7 +79,7 @@ class Minesweeper {
         //this.toString();
 
 
-        let amountOfBombs = (this.#sizeX * this.#sizeY) * this.#bombPercent;
+        let amountOfBombs = this.totalMines;
 
         for (let bombCount = 0; bombCount < amountOfBombs; bombCount++) { // Randomizes bomb placement, ignores initial 0s and other bomb tiles
             let randomX = Math.floor(Math.random() * this.#sizeX);

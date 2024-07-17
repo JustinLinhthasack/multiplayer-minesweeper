@@ -4,6 +4,8 @@ body {
     display: grid;
     align-items: center;
     justify-items: center;
+
+    background-color: #101820FF;
 }
 
 main {
@@ -12,7 +14,16 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
 
-    height: 400px;
-    width: 300px
+h1 {
+    margin-bottom: 25px;
+    color: #FCF6F5FF;
+}
+
+button {
+    background-color: #101820FF;
+    color: #FCF6F5FF;
+    border: none;
+
 }
